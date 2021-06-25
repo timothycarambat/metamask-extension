@@ -31,6 +31,7 @@ import {
   getHardwareWalletType,
   getUseTokenDetection,
   getTokenList,
+  getFailedTransactionsToDisplay,
 } from '../../selectors';
 import { getMostRecentOverviewPage } from '../../ducks/history/history';
 import {
@@ -40,13 +41,19 @@ import {
 import { KEYRING_TYPES } from '../../../shared/constants/hardware-wallets';
 import { getPlatform } from '../../../app/scripts/lib/util';
 import { PLATFORM_FIREFOX } from '../../../shared/constants/app';
+
+import {
+  addTxToFailedTxesToDisplay,
+  removeTxFromFailedTxesToDisplay,
+  getGasLoadingAnimationIsShowing,
+} from '../../ducks/app/app';
 import { toChecksumHexAddress } from '../../../shared/modules/hexstring-utils';
 import {
   updateTransactionGasFees,
   getIsGasEstimatesLoading,
   getNativeCurrency,
 } from '../../ducks/metamask/metamask';
-import { getGasLoadingAnimationIsShowing } from '../../ducks/app/app';
+
 import { isLegacyTransaction } from '../../helpers/utils/transactions.util';
 import ConfirmTransactionBase from './confirm-transaction-base.component';
 
@@ -82,10 +89,13 @@ const mapStateToProps = (state, ownProps) => {
     nextNonce,
     provider: { chainId },
   } = metamask;
+
+  const failedTransactionsToDisplay = getFailedTransactionsToDisplay(state);
+
   const { tokenData, txData, tokenProps, nonce } = confirmTransaction;
   const { txParams = {}, id: transactionId, type } = txData;
   const transaction =
-    Object.values(unapprovedTxs).find(
+    Object.values({ ...unapprovedTxs, ...failedTransactionsToDisplay }).find(
       ({ id }) => id === (transactionId || Number(paramsTransactionId)),
     ) || {};
   const {
@@ -174,6 +184,10 @@ const mapStateToProps = (state, ownProps) => {
   const isFirefox = getPlatform() === PLATFORM_FIREFOX;
   const nativeCurrency = getNativeCurrency(state);
 
+  const isFailedTransaction = Boolean(
+    failedTransactionsToDisplay[fullTxData.id],
+  );
+
   return {
     balance,
     fromAddress,
@@ -222,6 +236,7 @@ const mapStateToProps = (state, ownProps) => {
     showLedgerSteps,
     isFirefox,
     nativeCurrency,
+    isFailedTransaction,
   };
 };
 
@@ -256,6 +271,10 @@ export const mapDispatchToProps = (dispatch) => {
     updateTransactionGasFees: (gasFees) => {
       dispatch(updateTransactionGasFees({ ...gasFees, expectHexWei: true }));
     },
+    addTxToFailedTxesToDisplay: (id) =>
+      dispatch(addTxToFailedTxesToDisplay(id)),
+    removeTxFromFailedTxesToDisplay: (id) =>
+      dispatch(removeTxFromFailedTxesToDisplay(id)),
   };
 };
 
