@@ -943,6 +943,14 @@ export default class MetamaskController extends EventEmitter {
         this.appStateController.setRecoveryPhraseReminderLastShown,
         this.appStateController,
       ),
+      addPollingTokenToAppState: nodeify(
+        this.appStateController.addPollingToken,
+        this.appStateController,
+      ),
+      removePollingTokenFromAppState: nodeify(
+        this.appStateController.removePollingToken,
+        this.appStateController,
+      ),
 
       // EnsController
       tryReverseResolveAddress: nodeify(
@@ -1177,29 +1185,19 @@ export default class MetamaskController extends EventEmitter {
       ),
 
       // GasFeeController
-      getGasFeeEstimatesAndStartPolling: nodeify(
-        this.gasFeeController.getGasFeeEstimatesAndStartPolling,
+      updateWithAndStartPollingFor: nodeify(
+        this.gasFeeController.updateWithAndStartPollingFor,
         this.gasFeeController,
       ),
 
-      disconnectGasFeeEstimatePoller: nodeify(
-        this.gasFeeController.disconnectPoller,
+      stopPollingFor: nodeify(
+        this.gasFeeController.stopPollingFor,
         this.gasFeeController,
       ),
 
       getGasFeeTimeEstimate: nodeify(
         this.gasFeeController.getTimeEstimate,
         this.gasFeeController,
-      ),
-
-      addPollingTokenToAppState: nodeify(
-        this.appStateController.addPollingToken,
-        this.appStateController,
-      ),
-
-      removePollingTokenFromAppState: nodeify(
-        this.appStateController.removePollingToken,
-        this.appStateController,
       ),
 
       // DetectTokenController

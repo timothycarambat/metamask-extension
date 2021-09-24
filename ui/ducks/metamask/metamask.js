@@ -41,6 +41,7 @@ export default function reduceMetamask(state = {}, action) {
     nextNonce: null,
     conversionRate: null,
     nativeCurrency: 'ETH',
+    isNetworkCongested: false,
     ...state,
   };
 
@@ -339,4 +340,8 @@ export function getIsUnlocked(state) {
 
 export function getSeedPhraseBackedUp(state) {
   return state.metamask.seedPhraseBackedUp;
+}
+
+export function getIsNetworkCongested(state) {
+  return state.metamask.isNetworkCongested;
 }

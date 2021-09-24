@@ -2481,6 +2481,32 @@ export function setRecoveryPhraseReminderLastShown(lastShown) {
   };
 }
 
+/**
+ * Registers a polling token obtained from GasFeeController to app state.
+ *
+ * @param {string} pollToken - Poll token received from calling
+ * updateWithAndStartPollingFor`.
+ */
+export async function addPollingTokenToAppState(pollingToken) {
+  return promisifiedBackground.addPollingTokenToAppState(
+    pollingToken,
+    POLLING_TOKEN_ENVIRONMENT_TYPES[getEnvironmentType()],
+  );
+}
+
+/**
+ * Unregisters a polling token obtained from GasFeeController from app state.
+ *
+ * @param {string} pollToken - Poll token received from calling
+ * updateWithAndStartPollingFor`.
+ */
+export async function removePollingTokenFromAppState(pollingToken) {
+  return promisifiedBackground.removePollingTokenFromAppState(
+    pollingToken,
+    POLLING_TOKEN_ENVIRONMENT_TYPES[getEnvironmentType()],
+  );
+}
+
 export function loadingMethodDataStarted() {
   return {
     type: actionConstants.LOADING_METHOD_DATA_STARTED,
@@ -2786,40 +2812,25 @@ export async function updateTokenType(tokenAddress) {
 }
 
 /**
- * initiates polling for gas fee estimates.
+ * Makes a request for, and then starts a timer to continue to make requests
+ * for, a piece of data.
  *
- * @returns {string} a unique identify of the polling request that can be used
- *  to remove that request from consideration of whether polling needs to
- *  continue.
+ * @param {string} item - The type of request to add to the polling queue (one
+ * of "gasFeeEstimates" or "isNetworkCongested").
  */
-export function getGasFeeEstimatesAndStartPolling() {
-  return promisifiedBackground.getGasFeeEstimatesAndStartPolling();
+export function updateWithAndStartPollingFor(item) {
+  return promisifiedBackground.updateWithAndStartPollingFor(item);
 }
 
 /**
- * Informs the GasFeeController that a specific token is no longer requiring
- * gas fee estimates. If all tokens unsubscribe the controller stops polling.
+ * Removes an item from GasFeeController's polling queue so that the
+ * corresponding request will no longer be made.
  *
- * @param {string} pollToken - Poll token received from calling
- *  `getGasFeeEstimatesAndStartPolling`.
- * @returns {void}
+ * @param {string} item - The type of request in the polling queue to remove
+ * (one of "gasFeeEstimates" or "isNetworkCongested").
  */
-export function disconnectGasFeeEstimatePoller(pollToken) {
-  return promisifiedBackground.disconnectGasFeeEstimatePoller(pollToken);
-}
-
-export async function addPollingTokenToAppState(pollingToken) {
-  return promisifiedBackground.addPollingTokenToAppState(
-    pollingToken,
-    POLLING_TOKEN_ENVIRONMENT_TYPES[getEnvironmentType()],
-  );
-}
-
-export async function removePollingTokenFromAppState(pollingToken) {
-  return promisifiedBackground.removePollingTokenFromAppState(
-    pollingToken,
-    POLLING_TOKEN_ENVIRONMENT_TYPES[getEnvironmentType()],
-  );
+export function stopPollingFor(item) {
+  return promisifiedBackground.stopPollingFor(item);
 }
 
 export function getGasFeeTimeEstimate(maxPriorityFeePerGas, maxFeePerGas) {

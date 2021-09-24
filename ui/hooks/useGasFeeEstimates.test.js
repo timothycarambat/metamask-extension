@@ -1,23 +1,19 @@
 import { cleanup, renderHook } from '@testing-library/react-hooks';
 import { useSelector } from 'react-redux';
 import { GAS_ESTIMATE_TYPES } from '../../shared/constants/gas';
-import createRandomId from '../../shared/modules/random-id';
 import {
   getGasEstimateType,
   getGasFeeEstimates,
   getIsGasEstimatesLoading,
 } from '../ducks/metamask/metamask';
 import { checkNetworkAndAccountSupports1559 } from '../selectors';
-import {
-  disconnectGasFeeEstimatePoller,
-  getGasFeeEstimatesAndStartPolling,
-} from '../store/actions';
+import { stopPollingFor, updateWithAndStartPollingFor } from '../store/actions';
 
 import { useGasFeeEstimates } from './useGasFeeEstimates';
 
 jest.mock('../store/actions', () => ({
-  disconnectGasFeeEstimatePoller: jest.fn(),
-  getGasFeeEstimatesAndStartPolling: jest.fn(),
+  stopPollingFor: jest.fn(),
+  updateWithAndStartPollingFor: jest.fn(),
   addPollingTokenToAppState: jest.fn(),
   removePollingTokenFromAppState: jest.fn(),
 }));
@@ -62,35 +58,19 @@ const generateUseSelectorRouter = (opts = DEFAULT_OPTS) => (selector) => {
 };
 
 describe('useGasFeeEstimates', () => {
-  let tokens = [];
   beforeEach(() => {
     jest.clearAllMocks();
-    tokens = [];
-    getGasFeeEstimatesAndStartPolling.mockImplementation(() => {
-      const token = createRandomId();
-      tokens.push(token);
-      return Promise.resolve(token);
+    updateWithAndStartPollingFor.mockImplementation(() => {
+      return Promise.resolve('gasFeeEstimates');
     });
-    disconnectGasFeeEstimatePoller.mockImplementation((token) => {
-      tokens = tokens.filter((tkn) => tkn !== token);
-    });
-  });
-
-  it('registers with the controller', () => {
-    useSelector.mockImplementation(generateUseSelectorRouter());
-    renderHook(() => useGasFeeEstimates());
-    expect(tokens).toHaveLength(1);
   });
 
   it('clears token with the controller on unmount', async () => {
     useSelector.mockImplementation(generateUseSelectorRouter());
     renderHook(() => useGasFeeEstimates());
-    expect(tokens).toHaveLength(1);
-    const expectedToken = tokens[0];
     await cleanup();
-    expect(getGasFeeEstimatesAndStartPolling).toHaveBeenCalledTimes(1);
-    expect(disconnectGasFeeEstimatePoller).toHaveBeenCalledWith(expectedToken);
-    expect(tokens).toHaveLength(0);
+    expect(updateWithAndStartPollingFor).toHaveBeenCalledTimes(1);
+    expect(stopPollingFor).toHaveBeenCalledWith('gasFeeEstimates');
   });
 
   it('works with LEGACY gas prices', () => {

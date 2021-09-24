@@ -27,14 +27,20 @@ import { useSafeGasEstimatePolling } from './useSafeGasEstimatePolling';
  * GasFeeController that it is done requiring new gas estimates. Also checks
  * the returned gas estimate for validity on the current network.
  *
+ * @param args - The arguments for this function.
+ * @param {boolean} args.isEnabled - A switch that can be
+ * used to enable this hook (for instance, if we know that EIP-1559 is supported
+ * for the selected network/account, and we know that we aren't obtaining gas
+ * fees any other way). Defaults to true.
  * @returns {GasFeeEstimates} - GasFeeEstimates object
  */
-export function useGasFeeEstimates() {
+export function useGasFeeEstimates({ isEnabled = true } = {}) {
   const gasEstimateType = useSelector(getGasEstimateType);
   const gasFeeEstimates = useSelector(getGasFeeEstimates);
   const estimatedGasFeeTimeBounds = useSelector(getEstimatedGasFeeTimeBounds);
   const isGasEstimatesLoading = useSelector(getIsGasEstimatesLoading);
-  useSafeGasEstimatePolling();
+
+  useSafeGasEstimatePolling({ isEnabled });
 
   return {
     gasFeeEstimates,

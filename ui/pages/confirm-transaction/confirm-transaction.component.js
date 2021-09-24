@@ -11,6 +11,8 @@ import ConfirmApprove from '../confirm-approve';
 import ConfirmTokenTransactionBaseContainer from '../confirm-token-transaction-base';
 import ConfirmDecryptMessage from '../confirm-decrypt-message';
 import ConfirmEncryptionPublicKey from '../confirm-encryption-public-key';
+import GasFeeEstimatePollerInitiator from '../../components/gas-fee-estimate-poller-initiator';
+import NetworkCongestionPollerInitiator from '../../components/network-congestion-poller-initiator';
 
 import {
   CONFIRM_TRANSACTION_ROUTE,
@@ -25,12 +27,6 @@ import {
   ENCRYPTION_PUBLIC_KEY_REQUEST_PATH,
   DEFAULT_ROUTE,
 } from '../../helpers/constants/routes';
-import {
-  disconnectGasFeeEstimatePoller,
-  getGasFeeEstimatesAndStartPolling,
-  addPollingTokenToAppState,
-  removePollingTokenFromAppState,
-} from '../../store/actions';
 import ConfTx from './conf-tx';
 
 export default class ConfirmTransaction extends Component {
@@ -54,21 +50,7 @@ export default class ConfirmTransaction extends Component {
     setDefaultHomeActiveTabName: PropTypes.func,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  _beforeUnload = () => {
-    this._isMounted = false;
-    if (this.state.pollingToken) {
-      disconnectGasFeeEstimatePoller(this.state.pollingToken);
-      removePollingTokenFromAppState(this.state.pollingToken);
-    }
-  };
-
   componentDidMount() {
-    this._isMounted = true;
     const {
       totalUnapprovedCount = 0,
       sendTo,
@@ -81,18 +63,6 @@ export default class ConfirmTransaction extends Component {
       getTokenParams,
       isTokenMethodAction,
     } = this.props;
-
-    getGasFeeEstimatesAndStartPolling().then((pollingToken) => {
-      if (this._isMounted) {
-        this.setState({ pollingToken });
-        addPollingTokenToAppState(pollingToken);
-      } else {
-        disconnectGasFeeEstimatePoller(pollingToken);
-        removePollingTokenFromAppState(pollingToken);
-      }
-    });
-
-    window.addEventListener('beforeunload', this._beforeUnload);
 
     if (!totalUnapprovedCount && !sendTo) {
       history.replace(mostRecentOverviewPage);
@@ -107,11 +77,6 @@ export default class ConfirmTransaction extends Component {
     if (txId) {
       this.props.setTransactionToConfirm(txId);
     }
-  }
-
-  componentWillUnmount() {
-    this._beforeUnload();
-    window.removeEventListener('beforeunload', this._beforeUnload);
   }
 
   componentDidUpdate(prevProps) {
@@ -158,8 +123,20 @@ export default class ConfirmTransaction extends Component {
     // Show routes when state.confirmTransaction has been set and when either the ID in the params
     // isn't specified or is specified and matches the ID in state.confirmTransaction in order to
     // support URLs of /confirm-transaction or /confirm-transaction/<transactionId>
-    return transactionId &&
-      (!paramsTransactionId || paramsTransactionId === transactionId) ? (
+    const shouldRenderRoutes =
+      transactionId &&
+      (!paramsTransactionId || paramsTransactionId === transactionId);
+    return (
+      <GasFeeEstimatePollerInitiator>
+        <NetworkCongestionPollerInitiator>
+          {shouldRenderRoutes ? this._renderRoutes() : <Loading />}
+        </NetworkCongestionPollerInitiator>
+      </GasFeeEstimatePollerInitiator>
+    );
+  }
+
+  _renderRoutes() {
+    return (
       <Switch>
         <Route
           exact
@@ -208,8 +185,6 @@ export default class ConfirmTransaction extends Component {
         />
         <Route path="*" component={ConfirmTransactionSwitch} />
       </Switch>
-    ) : (
-      <Loading />
     );
   }
 }

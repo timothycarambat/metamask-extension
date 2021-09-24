@@ -72,7 +72,7 @@ jest.mock('../../store/actions', () => {
   return {
     ...actual,
     estimateGas: jest.fn(() => Promise.resolve('0x0')),
-    getGasFeeEstimatesAndStartPolling: jest.fn(() => Promise.resolve()),
+    updateWithAndStartPollingFor: jest.fn(() => Promise.resolve()),
     updateTokenType: jest.fn(() => Promise.resolve({ isERC721: false })),
   };
 });

@@ -2,12 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PageContainer from '../../../ui/page-container';
 import { Tabs, Tab } from '../../../ui/tabs';
-import {
-  disconnectGasFeeEstimatePoller,
-  getGasFeeEstimatesAndStartPolling,
-  addPollingTokenToAppState,
-  removePollingTokenFromAppState,
-} from '../../../../store/actions';
+import GasFeeEstimatePollerInitiator from '../../../gas-fee-estimate-poller-initiator';
+import NetworkCongestionPollerInitiator from '../../../network-congestion-poller-initiator';
 import AdvancedTabContent from './advanced-tab-content';
 import BasicTabContent from './basic-tab-content';
 
@@ -42,40 +38,6 @@ export default class GasModalPageContainer extends Component {
     disableSave: PropTypes.bool,
     customPriceIsExcessive: PropTypes.bool.isRequired,
   };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      pollingToken: undefined,
-    };
-  }
-
-  componentDidMount() {
-    this._isMounted = true;
-    getGasFeeEstimatesAndStartPolling().then((pollingToken) => {
-      if (this._isMounted) {
-        addPollingTokenToAppState(pollingToken);
-        this.setState({ pollingToken });
-      } else {
-        disconnectGasFeeEstimatePoller(pollingToken);
-        removePollingTokenFromAppState(pollingToken);
-      }
-    });
-    window.addEventListener('beforeunload', this._beforeUnload);
-  }
-
-  _beforeUnload = () => {
-    this._isMounted = false;
-    if (this.state.pollingToken) {
-      disconnectGasFeeEstimatePoller(this.state.pollingToken);
-      removePollingTokenFromAppState(this.state.pollingToken);
-    }
-  };
-
-  componentWillUnmount() {
-    this._beforeUnload();
-    window.removeEventListener('beforeunload', this._beforeUnload);
-  }
 
   renderBasicTabContent(gasPriceButtonGroupProps) {
     return (
@@ -209,31 +171,35 @@ export default class GasModalPageContainer extends Component {
     } = this.props;
 
     return (
-      <div className="gas-modal-page-container">
-        <PageContainer
-          title={this.context.t('customGas')}
-          subtitle={this.context.t('customGasSubTitle')}
-          tabsComponent={this.renderTabs()}
-          disabled={disableSave}
-          onCancel={() => cancelAndClose()}
-          onClose={() => cancelAndClose()}
-          onSubmit={() => {
-            if (isSpeedUp) {
-              this.context.metricsEvent({
-                eventOpts: {
-                  category: 'Navigation',
-                  action: 'Activity Log',
-                  name: 'Saved "Speed Up"',
-                },
-              });
-            }
-            onSubmit(customModalGasLimitInHex, customModalGasPriceInHex);
-          }}
-          submitText={this.context.t('save')}
-          headerCloseText={this.context.t('close')}
-          hideCancel
-        />
-      </div>
+      <GasFeeEstimatePollerInitiator>
+        <NetworkCongestionPollerInitiator>
+          <div className="gas-modal-page-container">
+            <PageContainer
+              title={this.context.t('customGas')}
+              subtitle={this.context.t('customGasSubTitle')}
+              tabsComponent={this.renderTabs()}
+              disabled={disableSave}
+              onCancel={() => cancelAndClose()}
+              onClose={() => cancelAndClose()}
+              onSubmit={() => {
+                if (isSpeedUp) {
+                  this.context.metricsEvent({
+                    eventOpts: {
+                      category: 'Navigation',
+                      action: 'Activity Log',
+                      name: 'Saved "Speed Up"',
+                    },
+                  });
+                }
+                onSubmit(customModalGasLimitInHex, customModalGasPriceInHex);
+              }}
+              submitText={this.context.t('save')}
+              headerCloseText={this.context.t('close')}
+              hideCancel
+            />
+          </div>
+        </NetworkCongestionPollerInitiator>
+      </GasFeeEstimatePollerInitiator>
     );
   }
 }

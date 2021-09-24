@@ -43,14 +43,10 @@ import {
   FONT_WEIGHT,
   TYPOGRAPHY,
 } from '../../helpers/constants/design-system';
-import {
-  disconnectGasFeeEstimatePoller,
-  getGasFeeEstimatesAndStartPolling,
-  addPollingTokenToAppState,
-  removePollingTokenFromAppState,
-} from '../../store/actions';
 
 import Typography from '../../components/ui/typography/typography';
+import GasFeeEstimatePollerInitiator from '../../components/gas-fee-estimate-poller-initiator';
+import NetworkCongestionPollerInitiator from '../../components/network-congestion-poller-initiator';
 
 const renderHeartBeatIfNotInTest = () =>
   process.env.IN_TEST === 'true' ? null : <LoadingHeartBeat />;
@@ -818,19 +814,10 @@ export default class ConfirmTransactionBase extends Component {
     cancelTransaction({ id });
   };
 
-  _beforeUnloadForGasPolling = () => {
-    this._isMounted = false;
-    if (this.state.pollingToken) {
-      disconnectGasFeeEstimatePoller(this.state.pollingToken);
-      removePollingTokenFromAppState(this.state.pollingToken);
-    }
-  };
-
   _removeBeforeUnload = () => {
     if (getEnvironmentType() === ENVIRONMENT_TYPE_NOTIFICATION) {
       window.removeEventListener('beforeunload', this._beforeUnload);
     }
-    window.removeEventListener('beforeunload', this._beforeUnloadForGasPolling);
   };
 
   componentDidMount() {
@@ -861,28 +848,9 @@ export default class ConfirmTransactionBase extends Component {
     if (toAddress) {
       tryReverseResolveAddress(toAddress);
     }
-
-    /**
-     * This makes a request to get estimates and begin polling, keeping track of the poll
-     * token in component state.
-     * It then disconnects polling upon componentWillUnmount. If the hook is unmounted
-     * while waiting for `getGasFeeEstimatesAndStartPolling` to resolve, the `_isMounted`
-     * flag ensures that a call to disconnect happens after promise resolution.
-     */
-    getGasFeeEstimatesAndStartPolling().then((pollingToken) => {
-      if (this._isMounted) {
-        addPollingTokenToAppState(pollingToken);
-        this.setState({ pollingToken });
-      } else {
-        disconnectGasFeeEstimatePoller(pollingToken);
-        removePollingTokenFromAppState(this.state.pollingToken);
-      }
-    });
-    window.addEventListener('beforeunload', this._beforeUnloadForGasPolling);
   }
 
   componentWillUnmount() {
-    this._beforeUnloadForGasPolling();
     this._removeBeforeUnload();
   }
 
@@ -943,51 +911,55 @@ export default class ConfirmTransactionBase extends Component {
       }
     }
     return (
-      <ConfirmPageContainer
-        fromName={fromName}
-        fromAddress={fromAddress}
-        showAccountInHeader={showAccountInHeader}
-        toName={toName}
-        toAddress={toAddress}
-        toEns={toEns}
-        toNickname={toNickname}
-        showEdit={Boolean(onEdit)}
-        action={functionType}
-        title={title}
-        titleComponent={this.renderTitleComponent()}
-        subtitleComponent={this.renderSubtitleComponent()}
-        hideSubtitle={hideSubtitle}
-        detailsComponent={this.renderDetails()}
-        dataComponent={this.renderData(functionType)}
-        contentComponent={contentComponent}
-        nonce={customNonceValue || nonce}
-        unapprovedTxCount={unapprovedTxCount}
-        identiconAddress={identiconAddress}
-        errorMessage={submitError}
-        errorKey={errorKey}
-        warning={submitWarning}
-        totalTx={totalTx}
-        positionOfCurrentTx={positionOfCurrentTx}
-        nextTxId={nextTxId}
-        prevTxId={prevTxId}
-        showNavigation={showNavigation}
-        onNextTx={(txId) => this.handleNextTx(txId)}
-        firstTx={firstTx}
-        lastTx={lastTx}
-        ofText={ofText}
-        requestsWaitingText={requestsWaitingText}
-        disabled={!valid || submitting || (gasIsLoading && !gasFeeIsCustom)}
-        onEdit={() => this.handleEdit()}
-        onCancelAll={() => this.handleCancelAll()}
-        onCancel={() => this.handleCancel()}
-        onSubmit={() => this.handleSubmit()}
-        hideSenderToRecipient={hideSenderToRecipient}
-        origin={txData.origin}
-        ethGasPriceWarning={ethGasPriceWarning}
-        editingGas={editingGas}
-        handleCloseEditGas={() => this.handleCloseEditGas()}
-        currentTransaction={txData}
-      />
+      <GasFeeEstimatePollerInitiator>
+        <NetworkCongestionPollerInitiator>
+          <ConfirmPageContainer
+            fromName={fromName}
+            fromAddress={fromAddress}
+            showAccountInHeader={showAccountInHeader}
+            toName={toName}
+            toAddress={toAddress}
+            toEns={toEns}
+            toNickname={toNickname}
+            showEdit={Boolean(onEdit)}
+            action={functionType}
+            title={title}
+            titleComponent={this.renderTitleComponent()}
+            subtitleComponent={this.renderSubtitleComponent()}
+            hideSubtitle={hideSubtitle}
+            detailsComponent={this.renderDetails()}
+            dataComponent={this.renderData(functionType)}
+            contentComponent={contentComponent}
+            nonce={customNonceValue || nonce}
+            unapprovedTxCount={unapprovedTxCount}
+            identiconAddress={identiconAddress}
+            errorMessage={submitError}
+            errorKey={errorKey}
+            warning={submitWarning}
+            totalTx={totalTx}
+            positionOfCurrentTx={positionOfCurrentTx}
+            nextTxId={nextTxId}
+            prevTxId={prevTxId}
+            showNavigation={showNavigation}
+            onNextTx={(txId) => this.handleNextTx(txId)}
+            firstTx={firstTx}
+            lastTx={lastTx}
+            ofText={ofText}
+            requestsWaitingText={requestsWaitingText}
+            disabled={!valid || submitting || (gasIsLoading && !gasFeeIsCustom)}
+            onEdit={() => this.handleEdit()}
+            onCancelAll={() => this.handleCancelAll()}
+            onCancel={() => this.handleCancel()}
+            onSubmit={() => this.handleSubmit()}
+            hideSenderToRecipient={hideSenderToRecipient}
+            origin={txData.origin}
+            ethGasPriceWarning={ethGasPriceWarning}
+            editingGas={editingGas}
+            handleCloseEditGas={() => this.handleCloseEditGas()}
+            currentTransaction={txData}
+          />
+        </NetworkCongestionPollerInitiator>
+      </GasFeeEstimatePollerInitiator>
     );
   }
 }

@@ -42,10 +42,10 @@ import {
   getTokenList,
 } from '../../selectors';
 import {
-  disconnectGasFeeEstimatePoller,
+  stopPollingFor,
   displayWarning,
   estimateGas,
-  getGasFeeEstimatesAndStartPolling,
+  updateWithAndStartPollingFor,
   hideLoadingIndication,
   showConfTxPage,
   showLoadingIndication,
@@ -436,10 +436,10 @@ export const initializeSendState = createAsyncThunk(
     // will return the gasFeeEstimates and gasEstimateType so that the reducer
     // can set the appropriate gas fees in state.
     let gasPrice = '0x1';
-    let gasEstimatePollToken = null;
+    const gasEstimatePollToken = 'gasFeeEstimates';
 
     // Instruct the background process that polling for gas prices should begin
-    gasEstimatePollToken = await getGasFeeEstimatesAndStartPolling();
+    await updateWithAndStartPollingFor('gasFeeEstimates');
 
     addPollingTokenToAppState(gasEstimatePollToken);
 
@@ -1306,9 +1306,7 @@ export function resetSendState() {
     dispatch(actions.resetSendState());
 
     if (state[name].gas.gasEstimatePollToken) {
-      await disconnectGasFeeEstimatePoller(
-        state[name].gas.gasEstimatePollToken,
-      );
+      await stopPollingFor(state[name].gas.gasEstimatePollToken);
       removePollingTokenFromAppState(state[name].gas.gasEstimatePollToken);
     }
   };

@@ -1,7 +1,11 @@
 import React from 'react';
 import sinon from 'sinon';
-import { shallowWithContext } from '../../../../../test/lib/render-helpers';
-import { getGasFeeEstimatesAndStartPolling } from '../../../../store/actions';
+import configureMockStore from 'redux-mock-store';
+import {
+  shallowWithContext,
+  renderWithProvider,
+} from '../../../../../test/lib/render-helpers';
+import { updateWithAndStartPollingFor } from '../../../../store/actions';
 
 import PageContainer from '../../../ui/page-container';
 
@@ -9,11 +13,12 @@ import { Tab } from '../../../ui/tabs';
 import GasModalPageContainer from './gas-modal-page-container.component';
 
 jest.mock('../../../../store/actions', () => ({
-  disconnectGasFeeEstimatePoller: jest.fn(),
-  getGasFeeEstimatesAndStartPolling: jest
+  stopPollingFor: jest.fn(),
+  updateWithAndStartPollingFor: jest
     .fn()
     .mockImplementation(() => Promise.resolve()),
   addPollingTokenToAppState: jest.fn(),
+  removePollingTokenFromAppState: jest.fn(),
 }));
 
 const propsMethodSpies = {
@@ -30,21 +35,24 @@ const mockGasPriceButtonGroupProps = {
       feeInSecondaryCurrency: '0.0048 ETH',
       timeEstimate: '~ 1 min 0 sec',
       priceInHexWei: '0xa1b2c3f',
+      gasEstimateType: 'SLOW',
     },
     {
       feeInPrimaryCurrency: '$0.39',
       feeInSecondaryCurrency: '0.004 ETH',
       timeEstimate: '~ 1 min 30 sec',
       priceInHexWei: '0xa1b2c39',
+      gasEstimateType: 'SLOW',
     },
     {
       feeInPrimaryCurrency: '$0.30',
       feeInSecondaryCurrency: '0.00354 ETH',
       timeEstimate: '~ 2 min 1 sec',
       priceInHexWei: '0xa1b2c30',
+      gasEstimateType: 'SLOW',
     },
   ],
-  handleGasPriceSelection: 'mockSelectionFunction',
+  handleGasPriceSelection: () => 'mockSelectionFunction',
   noButtonActiveByDefault: true,
   showCheck: true,
   newTotalFiat: 'mockNewTotalFiat',
@@ -87,12 +95,76 @@ describe('GasModalPageContainer Component', () => {
     jest.clearAllMocks();
   });
 
-  describe('componentDidMount', () => {
-    it('should call getGasFeeEstimatesAndStartPolling', () => {
-      jest.clearAllMocks();
-      expect(getGasFeeEstimatesAndStartPolling).not.toHaveBeenCalled();
-      wrapper.instance().componentDidMount();
-      expect(getGasFeeEstimatesAndStartPolling).toHaveBeenCalled();
+  describe('when the component mounts', () => {
+    describe('when the network does not support EIP 1559', () => {
+      it('should call updateWithAndStartPollingFor to fetch gas fee estimates', () => {
+        expect(updateWithAndStartPollingFor).not.toHaveBeenCalled();
+        const store = configureMockStore()({
+          metamask: {
+            keyrings: [],
+            identities: {},
+            networkDetails: { EIPS: {} },
+          },
+        });
+        renderWithProvider(
+          <GasModalPageContainer
+            cancelAndClose={propsMethodSpies.cancelAndClose}
+            onSubmit={propsMethodSpies.onSubmit}
+            updateCustomGasPrice={() => 'mockupdateCustomGasPrice'}
+            updateCustomGasLimit={() => 'mockupdateCustomGasLimit'}
+            gasPriceButtonGroupProps={mockGasPriceButtonGroupProps}
+            infoRowProps={mockInfoRowProps}
+            customGasPriceInHex="mockCustomGasPriceInHex"
+            customGasLimitInHex="mockCustomGasLimitInHex"
+            insufficientBalance={false}
+            disableSave={false}
+            customPriceIsExcessive={false}
+          />,
+          store,
+        );
+        expect(updateWithAndStartPollingFor).toHaveBeenCalledWith(
+          'gasFeeEstimates',
+        );
+      });
+    });
+
+    describe('when the network supports EIP 1559', () => {
+      it('should call updateWithAndStartPollingFor twice, once to get gas fee estimates and another time to gauge network congestion', () => {
+        expect(updateWithAndStartPollingFor).not.toHaveBeenCalled();
+        const store = configureMockStore()({
+          metamask: {
+            keyrings: [{ accounts: ['0x1234'] }],
+            identities: {
+              '0x1234': { address: '0x1234' },
+            },
+            networkDetails: { EIPS: { 1559: true } },
+            selectedAddress: '0x1234',
+          },
+        });
+        renderWithProvider(
+          <GasModalPageContainer
+            cancelAndClose={propsMethodSpies.cancelAndClose}
+            onSubmit={propsMethodSpies.onSubmit}
+            updateCustomGasPrice={() => 'mockupdateCustomGasPrice'}
+            updateCustomGasLimit={() => 'mockupdateCustomGasLimit'}
+            gasPriceButtonGroupProps={mockGasPriceButtonGroupProps}
+            infoRowProps={mockInfoRowProps}
+            customGasPriceInHex="mockCustomGasPriceInHex"
+            customGasLimitInHex="mockCustomGasLimitInHex"
+            insufficientBalance={false}
+            disableSave={false}
+            customPriceIsExcessive={false}
+          />,
+          store,
+        );
+        expect(updateWithAndStartPollingFor).toHaveBeenCalledTimes(2);
+        expect(updateWithAndStartPollingFor).toHaveBeenCalledWith(
+          'gasFeeEstimates',
+        );
+        expect(updateWithAndStartPollingFor).toHaveBeenCalledWith(
+          'isNetworkCongested',
+        );
+      });
     });
   });
 

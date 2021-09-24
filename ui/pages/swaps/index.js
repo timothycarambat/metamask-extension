@@ -70,7 +70,8 @@ import {
 } from '../../store/actions';
 
 import { useNewMetricEvent } from '../../hooks/useMetricEvent';
-import { useGasFeeEstimates } from '../../hooks/useGasFeeEstimates';
+import { useSafeGasEstimatePolling } from '../../hooks/useSafeGasEstimatePolling';
+import { useSafeNetworkCongestionPolling } from '../../hooks/useSafeNetworkCongestionPolling';
 import FeatureToggledRoute from '../../helpers/higher-order-components/feature-toggled-route';
 import { TRANSACTION_STATUSES } from '../../../shared/constants/transaction';
 import {
@@ -127,11 +128,10 @@ export default function Swap() {
   const reviewSwapClickedTimestamp = useSelector(getReviewSwapClickedTimestamp);
   const reviewSwapClicked = Boolean(reviewSwapClickedTimestamp);
 
-  if (networkAndAccountSupports1559) {
-    // This will pre-load gas fees before going to the View Quote page.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useGasFeeEstimates();
-  }
+  // This will preload gas fees before going to the View Quote page.
+  useSafeGasEstimatePolling({ isEnabled: networkAndAccountSupports1559 });
+  // This will pre-gauge the network before going to the View Quote page.
+  useSafeNetworkCongestionPolling({ isEnabled: networkAndAccountSupports1559 });
 
   const {
     balance: ethBalance,
