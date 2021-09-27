@@ -1,15 +1,8 @@
 import { ethErrors, errorCodes } from 'eth-rpc-errors';
 import deepFreeze from 'deep-freeze-strict';
 
-import { ApprovalController, ControllerMessenger } from '@metamask/controllers';
-
-import _getRestrictedMethods from '../../app/scripts/controllers/permissions/restrictedMethods';
-
-import { CAVEAT_NAMES } from '../../shared/constants/permissions';
-import {
-  CAVEAT_TYPES,
-  NOTIFICATION_NAMES,
-} from '../../app/scripts/controllers/permissions/enums';
+import { CaveatTypes } from '../../shared/constants/permissions';
+import { NOTIFICATION_NAMES } from '../../app/scripts/controllers/permissions/enums';
 
 /**
  * README
@@ -33,124 +26,6 @@ const keyringAccounts = deepFreeze([
   '0x7ae1cdd37bcbdb0e1f491974da8022bfdbf9c2bf',
   '0xcc74c7a59194e5d9268476955650d1e285be703c',
 ]);
-
-const getIdentities = () => {
-  return keyringAccounts.reduce((identities, address, index) => {
-    identities[address] = { address, name: `Account ${index}` };
-    return identities;
-  }, {});
-};
-
-// perm controller initialization helper
-const getRestrictedMethods = (permController) => {
-  return {
-    // the actual, production restricted methods
-    ..._getRestrictedMethods(permController),
-
-    // our own dummy method for testing
-    test_method: {
-      description: `This method is only for testing.`,
-      method: (req, res, __, end) => {
-        if (req.params[0]) {
-          res.result = 1;
-        } else {
-          res.result = 0;
-        }
-        end();
-      },
-    },
-  };
-};
-
-/**
- * Gets default mock constructor options for a permissions controller.
- *
- * @returns {Object} A PermissionsController constructor options object.
- */
-export function getPermControllerOpts() {
-  return {
-    approvals: new ApprovalController({
-      messenger: new ControllerMessenger(),
-      showApprovalRequest: noop,
-    }),
-    getKeyringAccounts: async () => [...keyringAccounts],
-    getUnlockPromise: () => Promise.resolve(),
-    getRestrictedMethods,
-    isUnlocked: () => true,
-    notifyDomain: noop,
-    notifyAllDomains: noop,
-    preferences: {
-      getState: () => {
-        return {
-          identities: getIdentities(),
-          selectedAddress: keyringAccounts[0],
-        };
-      },
-      subscribe: noop,
-    },
-    showPermissionRequest: noop,
-  };
-}
-
-/**
- * Gets a Promise-wrapped permissions controller middleware function.
- *
- * @param {PermissionsController} permController - The permissions controller to get a
- * middleware for.
- * @param {string} origin - The origin for the middleware.
- * @param {string} extensionId - The extension id for the middleware.
- * @returns {Function} A Promise-wrapped middleware function with convenient default args.
- */
-export function getPermissionsMiddleware(permController, origin, extensionId) {
-  const middleware = permController.createMiddleware({ origin, extensionId });
-  return (req, res = {}, next = noop, end) => {
-    return new Promise((resolve, reject) => {
-      // eslint-disable-next-line no-param-reassign
-      end = end || _end;
-
-      middleware(req, res, next, end);
-
-      // emulates json-rpc-engine error handling
-      function _end(err) {
-        if (err || res.error) {
-          reject(err || res.error);
-        } else {
-          resolve(res);
-        }
-      }
-    });
-  };
-}
-
-/**
- * @param {Object} notifications - An object that will store notifications produced
- * by the permissions controller.
- * @returns {Function} A function passed to the permissions controller at initialization,
- * for recording notifications.
- */
-export const getNotifyDomain = (notifications = {}) => (
-  origin,
-  notification,
-) => {
-  notifications[origin].push(notification);
-};
-
-/**
- * @param {Object} notifications - An object that will store notifications produced
- * by the permissions controller.
- * @returns {Function} A function passed to the permissions controller at initialization,
- * for recording notifications.
- */
-export const getNotifyAllDomains = (notifications = {}) => (notification) => {
-  Object.keys(notifications).forEach((origin) => {
-    notifications[origin].push(notification);
-  });
-};
-
-/**
- * Constants and Mock Objects
- * - e.g. permissions, caveats, and permission requests
- */
 
 const DOMAINS = {
   a: { origin: 'https://foo.xyz', host: 'foo.xyz' },
@@ -192,14 +67,8 @@ const CAVEATS = {
   eth_accounts: (accounts) => {
     return [
       {
-        type: CAVEAT_TYPES.limitResponseLength,
-        value: 1,
-        name: CAVEAT_NAMES.primaryAccountOnly,
-      },
-      {
-        type: CAVEAT_TYPES.filterResponse,
+        type: CaveatTypes.restrictReturnedAccounts,
         value: accounts,
-        name: CAVEAT_NAMES.exposedAccounts,
       },
     ];
   },

@@ -1,5 +1,6 @@
+import { ObservableStore } from '@metamask/obs-store';
 import stringify from 'fast-safe-stringify';
-import { CAVEAT_NAMES } from '../../../../shared/constants/permissions';
+import { CaveatTypes } from '../../../../shared/constants/permissions';
 import {
   HISTORY_STORE_KEY,
   LOG_IGNORE_METHODS,
@@ -14,9 +15,9 @@ import {
  * and permissions-related methods.
  */
 export default class PermissionsLogController {
-  constructor({ restrictedMethods, store }) {
+  constructor({ restrictedMethods }) {
     this.restrictedMethods = restrictedMethods;
-    this.store = store;
+    this.store = new ObservableStore();
   }
 
   /**
@@ -341,7 +342,7 @@ export default class PermissionsLogController {
     const accounts = new Set();
     for (const caveat of perm.caveats) {
       if (
-        caveat.name === CAVEAT_NAMES.exposedAccounts &&
+        caveat.type === CaveatTypes.restrictReturnedAccounts &&
         Array.isArray(caveat.value)
       ) {
         for (const value of caveat.value) {

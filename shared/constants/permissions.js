@@ -1,4 +1,7 @@
-export const CAVEAT_NAMES = {
-  exposedAccounts: 'exposedAccounts',
-  primaryAccountOnly: 'primaryAccountOnly',
+export const CaveatTypes = {
+  restrictReturnedAccounts: 'restrictReturnedAccounts',
+};
+
+export const RestrictedMethods = {
+  eth_accounts: 'eth_accounts',
 };

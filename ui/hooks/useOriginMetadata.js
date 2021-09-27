@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { getDomainMetadata } from '../selectors';
+import { getSubjectMetadata } from '../selectors';
 
 /**
  * @typedef {Object} OriginMetadata
@@ -20,7 +20,7 @@ import { getDomainMetadata } from '../selectors';
  *  current origin
  */
 export function useOriginMetadata(origin) {
-  const domainMetaData = useSelector(getDomainMetadata);
+  const subjectMetadata = useSelector(getSubjectMetadata);
   if (!origin) {
     return null;
   }
@@ -32,10 +32,10 @@ export function useOriginMetadata(origin) {
     origin,
   };
 
-  if (domainMetaData?.[origin]) {
+  if (subjectMetadata?.[origin]) {
     return {
       ...minimumOriginMetadata,
-      ...domainMetaData[origin],
+      ...subjectMetadata[origin],
     };
   }
   return minimumOriginMetadata;

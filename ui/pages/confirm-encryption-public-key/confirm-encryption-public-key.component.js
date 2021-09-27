@@ -28,7 +28,7 @@ export default class ConfirmEncryptionPublicKey extends Component {
     history: PropTypes.object.isRequired,
     requesterAddress: PropTypes.string,
     txData: PropTypes.object,
-    domainMetadata: PropTypes.object,
+    subjectMetadata: PropTypes.object,
     mostRecentOverviewPage: PropTypes.string.isRequired,
     nativeCurrency: PropTypes.string.isRequired,
   };
@@ -153,10 +153,10 @@ export default class ConfirmEncryptionPublicKey extends Component {
   };
 
   renderBody = () => {
-    const { domainMetadata, txData } = this.props;
+    const { subjectMetadata, txData } = this.props;
     const { t } = this.context;
 
-    const originMetadata = domainMetadata[txData.origin];
+    const originMetadata = subjectMetadata[txData.origin];
     const notice = t('encryptionPublicKeyNotice', [txData.origin]);
     const name = originMetadata?.hostname || txData.origin;
 

@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
 import stringify from 'fast-safe-stringify';
 
-import { noop } from '../mocks/permission-controller';
+import { noop } from '../mocks/permissions';
 
 /**
  * Grants the given permissions to the given origin, using the given permissions

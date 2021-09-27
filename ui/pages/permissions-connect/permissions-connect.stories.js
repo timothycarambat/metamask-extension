@@ -21,7 +21,7 @@ export const ChooseAccountComponent = () => {
           '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8',
         ])
       }
-      targetDomainMetadata={{
+      targetSubjectMetadata={{
         host: 'gnosis-safe.io',
         icon: './gnosis.svg',
         lastUpdated: 1627423550860,
@@ -56,7 +56,7 @@ export const PermissionPageContainerComponent = () => {
   return (
     <div className="page-container permission-approval-container">
       <PermissionPageContainerContent
-        domainMetadata={{
+        subjectMetadata={{
           extensionId: '1',
           host: 'gnosis-safe.io',
           icon: './gnosis.svg',

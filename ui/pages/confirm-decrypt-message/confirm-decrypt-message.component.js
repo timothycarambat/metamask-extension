@@ -35,7 +35,7 @@ export default class ConfirmDecryptMessage extends Component {
     mostRecentOverviewPage: PropTypes.string.isRequired,
     requesterAddress: PropTypes.string,
     txData: PropTypes.object,
-    domainMetadata: PropTypes.object,
+    subjectMetadata: PropTypes.object,
   };
 
   state = {
@@ -176,10 +176,10 @@ export default class ConfirmDecryptMessage extends Component {
   };
 
   renderBody = () => {
-    const { decryptMessageInline, domainMetadata, txData } = this.props;
+    const { decryptMessageInline, subjectMetadata, txData } = this.props;
     const { t } = this.context;
 
-    const originMetadata = domainMetadata[txData.msgParams.origin];
+    const originMetadata = subjectMetadata[txData.msgParams.origin];
     const name = originMetadata?.hostname || txData.msgParams.origin;
     const notice = t('decryptMessageNotice', [txData.msgParams.origin]);
 

@@ -113,6 +113,7 @@
     "@metamask/obs-store": "^5.0.0",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
+    "@metamask/snap-controllers": "^0.1.2",
     "@popperjs/core": "^2.4.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@sentry/browser": "^5.26.0",

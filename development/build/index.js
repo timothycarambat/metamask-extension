@@ -183,7 +183,7 @@ function parseArgv() {
     buildType,
     entryTask,
     isLavaMoat: process.argv[0].includes('lavamoat'),
-    shouldIncludeLockdown: argv[NamedArgs.OmitLockdown],
+    shouldIncludeLockdown: !argv[NamedArgs.OmitLockdown],
     shouldLintFenceFiles,
     skipStats: argv[NamedArgs.SkipStats],
   };

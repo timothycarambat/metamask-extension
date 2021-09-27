@@ -71,7 +71,7 @@
       "seedPhraseBackedUp": false
     },
     "PermissionsMetadata": {
-      "domainMetadata": {
+      "subjectMetadata": {
         "metamask.github.io": {
           "icon": null,
           "name": "M E T A M A S K M E S H T E S T"

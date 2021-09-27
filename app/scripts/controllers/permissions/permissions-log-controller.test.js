@@ -1,14 +1,9 @@
 import { strict as assert } from 'assert';
-import { ObservableStore } from '@metamask/obs-store';
 import nanoid from 'nanoid';
 import { useFakeTimers } from 'sinon';
 
-import {
-  constants,
-  getters,
-  noop,
-} from '../../../../test/mocks/permission-controller';
-import { validateActivityEntry } from '../../../../test/helpers/permission-controller-helpers';
+import { constants, getters, noop } from '../../../../test/mocks/permissions';
+import { validateActivityEntry } from '../../../../test/helpers/permission-helpers';
 import PermissionsLogController from './permissionsLog';
 import { LOG_LIMIT, LOG_METHOD_TYPES } from './enums';
 
@@ -27,7 +22,6 @@ let clock;
 
 const initPermLog = () => {
   return new PermissionsLogController({
-    store: new ObservableStore(),
     restrictedMethods: RESTRICTED_METHODS,
   });
 };

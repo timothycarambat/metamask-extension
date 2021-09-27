@@ -1167,7 +1167,7 @@ const state = {
         },
       },
     },
-    domainMetadata: {
+    subjectMetadata: {
       'https://metamask.github.io': {
         name: 'E2E Test Dapp',
         icon: 'https://metamask.github.io/test-dapp/metamask-fox.svg',

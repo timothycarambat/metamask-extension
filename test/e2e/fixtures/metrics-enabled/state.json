@@ -94,7 +94,7 @@
           }
         }
       },
-      "domainMetadata": {
+      "subjectMetadata": {
         "http://127.0.0.1:8080": {
           "name": "E2E Test Dapp",
           "icon": "http://127.0.0.1:8080/metamask-fox.svg",

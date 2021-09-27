@@ -7,7 +7,7 @@ import { goHome } from '../../../store/actions';
 import {
   accountsWithSendEtherInfoSelector,
   conversionRateSelector,
-  getDomainMetadata,
+  getSubjectMetadata,
 } from '../../../selectors';
 import { getAccountByAddress } from '../../../helpers/utils/util';
 import { clearConfirmTransaction } from '../../../ducks/confirm-transaction/confirm-transaction.duck';
@@ -22,7 +22,7 @@ function mapStateToProps(state) {
     mostRecentOverviewPage: getMostRecentOverviewPage(state),
     // not passed to component
     allAccounts: accountsWithSendEtherInfoSelector(state),
-    domainMetadata: getDomainMetadata(state),
+    subjectMetadata: getSubjectMetadata(state),
   };
 }
 
