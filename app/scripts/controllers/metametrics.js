@@ -1,11 +1,13 @@
-import { merge, omit } from 'lodash';
+import { merge, omit, omitBy, pickBy } from 'lodash';
 import { ObservableStore } from '@metamask/obs-store';
 import { bufferToHex, keccak } from 'ethereumjs-util';
+import { generateUUID } from 'pubnub';
 import { ENVIRONMENT_TYPE_BACKGROUND } from '../../../shared/constants/app';
 import {
   METAMETRICS_ANONYMOUS_ID,
   METAMETRICS_BACKGROUND_PAGE_OBJECT,
 } from '../../../shared/constants/metametrics';
+import { SECOND } from '../../../shared/constants/time';
 
 /**
  * @typedef {import('../../../shared/constants/metametrics').MetaMetricsContext} MetaMetricsContext
@@ -15,15 +17,18 @@ import {
  * @typedef {import('../../../shared/constants/metametrics').SegmentInterface} SegmentInterface
  * @typedef {import('../../../shared/constants/metametrics').MetaMetricsPagePayload} MetaMetricsPagePayload
  * @typedef {import('../../../shared/constants/metametrics').MetaMetricsPageOptions} MetaMetricsPageOptions
+ * @typedef {import('../../../shared/constants/metametrics').MetaMetricsFunnel} MetaMetricsFunnel
  */
 
 /**
  * @typedef {Object} MetaMetricsControllerState
- * @property {?string} metaMetricsId - The user's metaMetricsId that will be
+ * @property {string} [metaMetricsId] - The user's metaMetricsId that will be
  *  attached to all non-anonymized event payloads
- * @property {?boolean} participateInMetaMetrics - The user's preference for
+ * @property {boolean} [participateInMetaMetrics] - The user's preference for
  *  participating in the MetaMetrics analytics program. This setting controls
  *  whether or not events are tracked
+ * @property {{[string]: MetaMetricsFunnel}} [funnels] - Object keyed by UUID
+ *  with stored funnels as values.
  */
 
 export default class MetaMetricsController {
@@ -59,10 +64,16 @@ export default class MetaMetricsController {
     this.version =
       environment === 'production' ? version : `${version}-${environment}`;
 
+    const persistedFunnels = pickBy(initState.funnels, 'crossSession');
+    const abandonedFunnels = omitBy(initState.funnels, 'crossSession');
+
     this.store = new ObservableStore({
       participateInMetaMetrics: null,
       metaMetricsId: null,
       ...initState,
+      funnels: {
+        ...persistedFunnels,
+      },
     });
 
     preferencesStore.subscribe(({ currentLocale }) => {
@@ -74,6 +85,26 @@ export default class MetaMetricsController {
       this.network = getNetworkIdentifier();
     });
     this.segment = segment;
+
+    // Track abandoned funnels that got stuck and weren't properly cleaned up.
+    // Abandoned funnels are those that are persisted that should not be
+    // tracked across sessions.
+    Object.values(abandonedFunnels).forEach((funnel) => {
+      this.closeFunnel(funnel.id, { abandoned: true });
+    });
+
+    // Close funnels that have been open and haven't been updated within a
+    // number of seconds determined by the funnel's timeout property.
+    setInterval(() => {
+      this.store.getState().funnels.forEach((funnel) => {
+        if (
+          funnel.timeout &&
+          Date.now() - funnel.lastUpdated / 1000 > funnel.timeout
+        ) {
+          this.closeFunnel(funnel.id, { abandoned: true });
+        }
+      });
+    }, SECOND * 30);
   }
 
   generateMetaMetricsId() {
@@ -85,6 +116,95 @@ export default class MetaMetricsController {
         ),
       ),
     );
+  }
+
+  /**
+   * Create a funnel in state and returns the funnel object.
+   * @param {MetaMetricsFunnel} options - Funnel settings and properties
+   *  to initiate the funnel with.
+   * @returns {MetaMetricsFunnel}
+   */
+  createFunnel(options) {
+    const { funnels } = this.store.getState();
+
+    const id = generateUUID();
+    const funnel = {
+      id,
+      ...options,
+      lastUpdated: Date.now(),
+    };
+    this.store.updateState({
+      funnels: {
+        ...funnels,
+        [id]: funnel,
+      },
+    });
+    return funnel;
+  }
+
+  /**
+   * Updates a funnel in state
+   * @param {string} id - The funnel id to update
+   * @param {MetaMetricsFunnel} options - Funnel settings and properties
+   *  to initiate the funnel with.
+   * @returns {MetaMetricsFunnel}
+   */
+  updateFunnel(id, payload) {
+    const { funnels } = this.store.getState();
+
+    const funnel = funnels[id];
+
+    if (!funnel) {
+      throw new Error(`Funnel with id ${id} does not exist.`);
+    }
+
+    this.store.updateState({
+      funnels: {
+        ...funnels,
+        [id]: merge(funnels[id], {
+          ...payload,
+          lastUpdated: Date.now(),
+        }),
+      },
+    });
+  }
+
+  /**
+   * Close a funnel, tracking either a success event or failure Event, and
+   * remove the funnel from state.
+   * @param {string} id - UUID of the funnel to be closed
+   * @param {object} options
+   * @param {boolean} [options.abandonedFunnels] - if true track the failure
+   *  event instead of the success event
+   * @param {MetaMetricsContext.page} [options.page] - page the final event
+   *  occurred on. This will override whatever is set on the funnel
+   * @param {MetaMetricsContext.referrer} [options.referrer] - Dapp that
+   *  originated the funnel. This is for fallback only, the funnel referrer
+   *  property will take precedence.
+   */
+  closeFunnel(id, { abandoned = false, page, referrer }) {
+    const funnel = this.store.getState().funnels[id];
+    if (!funnel) {
+      throw new Error(`Funnel with id ${id} does not exist.`);
+    }
+
+    const eventName = abandoned ? funnel.failureEvent : funnel.successEvent;
+
+    this.trackEvent({
+      event: eventName,
+      category: funnel.category,
+      properties: funnel.properties,
+      sensitiveProperties: funnel.sensitiveProperties,
+      page: page ?? funnel.page,
+      referrer: funnel.referrer ?? referrer,
+      revenue: funnel.revenue,
+      value: funnel.value,
+      currency: funnel.currency,
+      environmentType: funnel.environmentType,
+    });
+    const { funnels } = this.store.getState();
+    delete funnels[id];
+    this.store.updateState({ funnels });
   }
 
   /**

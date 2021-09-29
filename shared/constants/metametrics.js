@@ -80,6 +80,39 @@
  */
 
 /**
+ * @typedef {Object} MetaMetricsFunnel
+ * @property {string} successEvent - The event name to fire when the funnel is
+ *  closed in an affirmative action.
+ * @property {string} failureEvent - The event name to fire when the funnel is
+ *  closed with a rejection.
+ * @property {boolean} crossSession - Should this funnel be persisted in state
+ *  and progressed across any number of sessions (extension windows).
+ * @property {string|number} sessionId - Identifier for session the funnel was
+ *  created from.
+ * @property {number} [timeout] - Time in seconds the event should be persisted
+ *  for. After the timeout the funnel will be closed as abandoned. if not
+ *  supplied the funnel is stored indefinitely.
+ * @property {number} [lastUpdated] - Date.now() when the funnel was last
+ *  updated. Used to determine if the timeout has expired and the funnel should
+ *  be closed.
+ * @property {object} [properties] - Object of custom values to track, keys in
+ *  this object must be in snake_case.
+ * @property {object} [sensitiveProperties] - Object of sensitive values to
+ *  track. Keys in this object must be in snake_case. These properties will be
+ *  sent in an additional event that excludes the user's metaMetricsId
+ * @property {number}  [revenue] - amount of currency that event creates in
+ *  revenue for MetaMask if funnel is successful.
+ * @property {string}  [currency] - ISO 4127 format currency for events with
+ *  revenue, defaults to US dollars
+ * @property {number}  [value] - Abstract business "value" attributable to
+ *  customers who successfully complete this funnel
+ * @property {MetaMetricsPageObject} [page] - the page/route that the event
+ *  occurred on
+ * @property {MetaMetricsReferrerObject} [referrer] - the origin of the dapp
+ *  that initiated the funnel.
+ */
+
+/**
  * Represents the shape of data sent to the segment.track method.
  * @typedef {Object} SegmentEventPayload
  * @property {string} [userId] - The metametrics id for the user

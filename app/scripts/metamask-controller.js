@@ -1157,6 +1157,18 @@ export default class MetamaskController extends EventEmitter {
         metaMetricsController.trackPage,
         metaMetricsController,
       ),
+      createFunnel: nodeify(
+        metaMetricsController.createFunnel,
+        metaMetricsController,
+      ),
+      updateFunnel: nodeify(
+        metaMetricsController.updateFunnel,
+        metaMetricsController,
+      ),
+      closeFunnel: nodeify(
+        metaMetricsController.closeFunnel,
+        metaMetricsController,
+      ),
 
       // approval controller
       resolvePendingApproval: nodeify(

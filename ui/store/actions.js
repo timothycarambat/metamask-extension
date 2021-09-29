@@ -2846,6 +2846,18 @@ export function trackMetaMetricsEvent(payload, options) {
   return promisifiedBackground.trackMetaMetricsEvent(payload, options);
 }
 
+export function createFunnel(options) {
+  return promisifiedBackground.createFunnel(options);
+}
+
+export function updateFunnel(id, payload) {
+  return promisifiedBackground.createFunnel(id, payload);
+}
+
+export function closeFunnel(id, options) {
+  return promisifiedBackground.closeFunnel(id, options);
+}
+
 /**
  * @param {MetaMetricsPagePayload} payload - details of the page viewed
  * @param {MetaMetricsPageOptions} options - options for handling the page view
