@@ -6,6 +6,7 @@ const glob = require('fast-glob');
 const locales = require('../../app/_locales/index.json');
 
 const { createTask, composeSeries } = require('./task');
+const { BuildTypes } = require('./utils');
 
 const EMPTY_JS_FILE = './development/empty.js';
 
@@ -13,10 +14,25 @@ module.exports = function createStaticAssetTasks({
   livereload,
   browserPlatforms,
   shouldIncludeLockdown = true,
+  buildType,
 }) {
   const [copyTargetsProd, copyTargetsDev] = getCopyTargets(
     shouldIncludeLockdown,
   );
+
+  const additionalBuildTargets = {
+    [BuildTypes.beta]: [
+      {
+        src: './app/build-types/beta/',
+        dest: `images`,
+      },
+    ],
+  };
+
+  if (Object.keys(additionalBuildTargets).includes(buildType)) {
+    copyTargetsProd.push(...additionalBuildTargets[buildType]);
+    copyTargetsDev.push(...additionalBuildTargets[buildType]);
+  }
 
   const prod = createTask(
     'static:prod',
