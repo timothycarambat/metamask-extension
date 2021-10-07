@@ -36,6 +36,7 @@ export default class ConfirmPageContainerContent extends Component {
     unapprovedTxCount: PropTypes.number,
     rejectNText: PropTypes.string,
     isFailedTransaction: PropTypes.bool,
+    onErrorMessageClick: PropTypes.func,
   };
 
   renderContent() {
@@ -66,10 +67,6 @@ export default class ConfirmPageContainerContent extends Component {
     );
   }
 
-  onErrorMessageClick(message) {
-    console.log(message);
-  }
-
   render() {
     const {
       action,
@@ -95,6 +92,7 @@ export default class ConfirmPageContainerContent extends Component {
       origin,
       ethGasPriceWarning,
       isFailedTransaction,
+      onErrorMessageClick,
     } = this.props;
 
     return (
@@ -124,7 +122,7 @@ export default class ConfirmPageContainerContent extends Component {
               errorMessage={this.context.t('somethingWentWrong2')}
               errorKey={errorKey}
               linkText={this.context.t('moreDetails')}
-              onErrorMessageClick={() => this.onErrorMessageClick(errorMessage)}
+              onErrorMessageClick={() => onErrorMessageClick(errorMessage)}
             />
           </div>
         )}
