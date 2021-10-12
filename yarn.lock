@@ -2927,28 +2927,29 @@
   resolved "https://registry.yarnpkg.com/@metamask/safe-event-emitter/-/safe-event-emitter-2.0.0.tgz#af577b477c683fad17c619a78208cede06f9605c"
   integrity sha512-/kSXhY692qiV1MXu6EeOZvg5nECLclxNXcKCxJ3cXQgYuRymRHpdx/t7JXfsK+JLjwA1e1c1/SBrlQYpusC29Q==
 
-"@metamask/snap-controllers@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@metamask/snap-controllers/-/snap-controllers-0.1.2.tgz#b450d7b4e5553eb382f3e53ea0716d5bc81e471a"
-  integrity sha512-7zgKsMTEpYu9s98Oq8sIIHpTUlfzWRdpiqc23QqyMHDRXB1/Z3DuoYFP+Hopl7HtAuX4tjyoGWZu1hJyr+55GA==
+"@metamask/snap-controllers@./metamask-snap-controllers-0.2.2.tgz":
+  version "0.2.2"
+  resolved "./metamask-snap-controllers-0.2.2.tgz#00fe96aacbe7a0cac1c5aa680fb37ce782dc37cd"
   dependencies:
     "@metamask/controllers" "^17.0.0"
     "@metamask/object-multiplex" "^1.1.0"
     "@metamask/obs-store" "^6.0.2"
     "@metamask/post-message-stream" "4.0.0"
     "@metamask/safe-event-emitter" "^2.0.0"
-    "@metamask/snap-workers" "^0.1.0"
+    "@metamask/snap-workers" "^0.2.0"
+    "@types/deep-freeze-strict" "^1.1.0"
+    deep-freeze-strict "^1.1.1"
     eth-rpc-errors "^4.0.2"
     immer "^9.0.6"
     json-rpc-engine "^6.1.0"
     json-rpc-middleware-stream "^3.0.0"
-    nanoid "^3.1.20"
+    nanoid "^3.1.28"
     pump "^3.0.0"
 
-"@metamask/snap-workers@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@metamask/snap-workers/-/snap-workers-0.1.0.tgz#382fa8676bd348c550786c79b1325754c79b5423"
-  integrity sha512-80xdaZIj9KQZYMhis2LBDhUJ0FAxCcFW8Jr1UGrV1cwnmo3WrDw2C1FIT6IRddvwsiDi63sXNnYYYWeAmbcydw==
+"@metamask/snap-workers@^0.2.0":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@metamask/snap-workers/-/snap-workers-0.2.2.tgz#db89fb95c185a0fd97cc698b78e1c82c6ab2468a"
+  integrity sha512-Oqs/BZwA/xlXYtuhGlbFLZteSAauKbiyZlToPap86dVNzaXvS+rIW7ew2gjj8JQBLuMF/DLbh4vxQIOVSp3VHw==
 
 "@metamask/test-dapp@^4.0.1":
   version "4.0.1"
@@ -3982,6 +3983,11 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
+
+"@types/deep-freeze-strict@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/deep-freeze-strict/-/deep-freeze-strict-1.1.0.tgz#447a6a2576191344aa42310131dd3df5c41492c4"
+  integrity sha1-RHpqJXYZE0SqQjEBMd099cQUksQ=
 
 "@types/estree@^0.0.48":
   version "0.0.48"
@@ -9420,7 +9426,7 @@ deep-extend@^0.6.0, deep-extend@~0.6.0:
   resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.6.0.tgz#c4fa7c95404a17a9c3e8ca7e1537312b736330ac"
   integrity sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==
 
-deep-freeze-strict@1.1.1:
+deep-freeze-strict@1.1.1, deep-freeze-strict@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/deep-freeze-strict/-/deep-freeze-strict-1.1.1.tgz#77d0583ca24a69be4bbd9ac2fae415d55523e5b0"
   integrity sha1-d9BYPKJKab5LvZrC+uQV1VUj5bA=
@@ -19721,10 +19727,10 @@ nanoid@^3.1.12, nanoid@^3.1.23:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
   integrity sha512-FiB0kzdP0FFVGDKlRLEQ1BgDzU87dy5NnzjeW9YZNt+/c3+q82EQDUwniSAUxp/F0gFNI1ZhKU1FqYsMuqZVnw==
 
-nanoid@^3.1.20:
-  version "3.1.28"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.28.tgz#3c01bac14cb6c5680569014cc65a2f26424c6bd4"
-  integrity sha512-gSu9VZ2HtmoKYe/lmyPFES5nknFrHa+/DT9muUFWFMi6Jh9E1I7bkvlQ8xxf1Kos9pi9o8lBnIOkatMhKX/YUw==
+nanoid@^3.1.28:
+  version "3.1.29"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.29.tgz#214fb2d7a33e1a5bef4757b779dfaeb6a4e5aeb4"
+  integrity sha512-dW2pUSGZ8ZnCFIlBIA31SV8huOGCHb6OwzVCc7A69rb/a+SgPBwfmLvK5TKQ3INPbRkcI8a/Owo0XbiTNH19wg==
 
 nanomatch@^1.2.9:
   version "1.2.9"

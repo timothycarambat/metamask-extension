@@ -767,10 +767,7 @@ describe('MetaMaskController', function () {
       sinon.stub(metamaskController.preferencesController, 'removeAddress');
       sinon.stub(metamaskController.accountTracker, 'removeAccount');
       sinon.stub(metamaskController.keyringController, 'removeAccount');
-      sinon.stub(
-        metamaskController.permissionsController,
-        'removeAllAccountPermissions',
-      );
+      sinon.stub(metamaskController, 'removeAllAccountPermissions');
 
       ret = await metamaskController.removeAccount(addressToRemove);
     });
@@ -779,7 +776,7 @@ describe('MetaMaskController', function () {
       metamaskController.keyringController.removeAccount.restore();
       metamaskController.accountTracker.removeAccount.restore();
       metamaskController.preferencesController.removeAddress.restore();
-      metamaskController.permissionsController.removeAllAccountPermissions.restore();
+      metamaskController.removeAllAccountPermissions.restore();
     });
 
     it('should call preferencesController.removeAddress', async function () {
@@ -803,9 +800,9 @@ describe('MetaMaskController', function () {
         ),
       );
     });
-    it('should call permissionsController.removeAllAccountPermissions', async function () {
+    it('should call metamaskController.removeAllAccountPermissions', async function () {
       assert(
-        metamaskController.permissionsController.removeAllAccountPermissions.calledWith(
+        metamaskController.removeAllAccountPermissions.calledWith(
           addressToRemove,
         ),
       );

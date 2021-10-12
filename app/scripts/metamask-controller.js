@@ -32,6 +32,7 @@ import {
 import {
   PermissionController,
   SubjectMetadataController,
+  CaveatMutatorOperation,
 } from '@metamask/snap-controllers';
 
 import { TRANSACTION_STATUSES } from '../../shared/constants/transaction';
@@ -428,7 +429,7 @@ export default class MetamaskController extends EventEmitter {
 
     this.getAccounts = async (origin) => {
       try {
-        return await this.permissionController.enforcer.executeRestrictedMethod(
+        return await this.permissionController.executeRestrictedMethod(
           origin,
           RestrictedMethods.eth_accounts,
         );
@@ -855,8 +856,6 @@ export default class MetamaskController extends EventEmitter {
       tokensController,
     } = this;
 
-    const { enforcer: permissionEnforcer } = permissionController;
-
     return {
       // etc
       getState: (cb) => cb(null, this.getState()),
@@ -1104,20 +1103,20 @@ export default class MetamaskController extends EventEmitter {
         permissionController,
       ),
       approvePermissionsRequest: nodeify(
-        permissionEnforcer.acceptPermissionsRequest,
-        permissionEnforcer,
+        permissionController.acceptPermissionsRequest,
+        permissionController,
       ),
       rejectPermissionsRequest: nodeify(
-        permissionEnforcer.rejectPermissionsRequest,
-        permissionEnforcer,
+        permissionController.rejectPermissionsRequest,
+        permissionController,
       ),
       requestAccountsPermissionWithId: nodeify(async (origin) => {
-        const [
-          ,
-          { id },
-        ] = await permissionEnforcer.requestAndPreservePermissions(origin, {
-          eth_accounts: {},
-        });
+        const [, { id }] = await permissionController.requestPermissions(
+          origin,
+          {
+            eth_accounts: {},
+          },
+        );
         return id;
       }, this),
       addPermittedAccount: (origin, account) => {
@@ -1817,45 +1816,32 @@ export default class MetamaskController extends EventEmitter {
     return selectedAddress;
   }
 
-  // TODO:permissions move this elsewhere
+  /**
+   * Stops exposing the account with the specified address to all third parties.
+   * Exposed accounts are stored in caveats of the eth_accounts permission. This
+   * method uses `PermissionController.updatePermissionsByCaveat` to
+   * remove the specified address from every eth_accounts permission. If a
+   * permission only included this address, the permission is revoked entirely.
+   *
+   * @param {string} targetAddress - The address of the account to stop exposing
+   * to third parties.
+   */
   removeAllAccountPermissions(targetAddress) {
-    const { subjects } = this.permissionController.state;
-    const connectedSubjects = Object.keys(subjects).reduce(
-      (newCaveats, subject) => {
-        const caveats = subject[RestrictedMethods.eth_accounts]?.caveats;
-        if (caveats) {
-          const accountCaveat = caveats.find(
-            (caveat) => caveat.type === CaveatTypes.restrictReturnedAccounts,
-          );
-
-          if (accountCaveat.value.includes(targetAddress)) {
-            newCaveats[subject] = accountCaveat.value.filter(
-              (address) => address !== targetAddress,
-            );
-          }
-        }
-        return newCaveats;
-      },
-      {},
-    );
-
-    const toRevoke = {};
-    connectedSubjects.forEach((subject) => {
-      if (connectedSubjects[subject].length === 0) {
-        toRevoke[subject] = { [RestrictedMethods.eth_accounts]: {} };
-      } else {
-        this.permissionController.updateCaveat(
-          subject,
-          RestrictedMethods.eth_accounts,
-          CaveatTypes.restrictReturnedAccounts,
-          connectedSubjects[subject],
+    this.permissionController.updatePermissionsByCaveat(
+      CaveatTypes.restrictReturnedAccounts,
+      (existingAccounts) => {
+        const newAccounts = existingAccounts.filter(
+          (address) => address !== targetAddress,
         );
-      }
-    });
 
-    if (Object.keys(toRevoke).length > 0) {
-      this.permissionController.revokePermissions(toRevoke);
-    }
+        if (newAccounts.length === existingAccounts.length) {
+          return [CaveatMutatorOperation.noop];
+        } else if (newAccounts.length > 0) {
+          return [CaveatMutatorOperation.updateValue, newAccounts];
+        }
+        return [CaveatMutatorOperation.revokePermission];
+      },
+    );
   }
 
   /**
@@ -2621,13 +2607,13 @@ export default class MetamaskController extends EventEmitter {
           this.permissionController,
           origin,
         ),
-        requestAccountsPermission: this.permissionController.enforcer.requestPermissions.bind(
-          this.permissionController.enforcer,
+        requestAccountsPermission: this.permissionController.requestPermissions.bind(
+          this.permissionController,
           origin,
           { eth_accounts: {} },
         ),
-        requestPermissions: this.permissionController.enforcer.requestPermissions.bind(
-          this.permissionController.enforcer,
+        requestPermissions: this.permissionController.requestPermissions.bind(
+          this.permissionController,
           origin,
         ),
 
@@ -2680,7 +2666,7 @@ export default class MetamaskController extends EventEmitter {
     if (!isInternal) {
       // permissions
       engine.push(
-        this.permissionController.enforcer.createPermissionMiddleware({
+        this.permissionController.createPermissionMiddleware({
           origin,
         }),
       );

@@ -38,7 +38,24 @@ export const getPermissionSpecifications = ({
 }) => {
   return {
     [PermissionKeys.eth_accounts]: {
-      target: PermissionKeys.eth_accounts,
+      targetKey: PermissionKeys.eth_accounts,
+      allowedCaveats: [CaveatTypes.restrictReturnedAccounts],
+      factory: (permissionOptions, requestData) => {
+        if (!requestData.approvedAccounts) {
+          throw new Error(
+            `${PermissionKeys.eth_accounts} error: Received unexpected caveats: ${permissionOptions.caveats}`,
+          );
+        }
+
+        return constructPermission({
+          ...permissionOptions,
+          caveats: [
+            CaveatFactories[CaveatTypes.restrictReturnedAccounts](
+              requestData.approvedAccounts,
+            ),
+          ],
+        });
+      },
       methodImplementation: async (_args) => {
         try {
           const accounts = await getKeyringAccounts();
@@ -70,22 +87,6 @@ export const getPermissionSpecifications = ({
           console.error(error);
           return [];
         }
-      },
-      factory: (permissionOptions, requestData) => {
-        if (!requestData.approvedAccounts) {
-          throw new Error(
-            `${PermissionKeys.eth_accounts} error: Received unexpected caveats: ${permissionOptions.caveats}`,
-          );
-        }
-
-        return constructPermission({
-          ...permissionOptions,
-          caveats: [
-            CaveatFactories[CaveatTypes.restrictReturnedAccounts](
-              requestData.approvedAccounts,
-            ),
-          ],
-        });
       },
       validator: (permission, _origin, _target) => {
         const { caveats } = permission;
