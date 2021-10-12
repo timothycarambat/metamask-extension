@@ -1,10 +1,9 @@
 import { strict as assert } from 'assert';
 import EventEmitter from 'events';
-import { toBuffer } from 'ethereumjs-util';
+import { toBuffer, BN } from 'ethereumjs-util';
 import { TransactionFactory } from '@ethereumjs/tx';
 import { ObservableStore } from '@metamask/obs-store';
 import sinon from 'sinon';
-
 import {
   createTestProviderTools,
   getTestAccounts,
@@ -1790,6 +1789,33 @@ describe('Transaction Controller', function () {
       };
       const result = txController._getGasValuesInGWEI(params);
       assert.deepEqual(result, expectedParams);
+    });
+  });
+
+  describe('#fetchOptimismL1Fee', function () {
+    it('uses an Optimism smart contract to fetch the computed L1 fee for the given transaction', function (done) {
+      providerResultStub.eth_call = new BN('12345').toString(16);
+
+      // Taken from <https://github.com/ethereumjs/ethereumjs-monorepo/tree/master/packages/tx#legacy-transactions>
+      // NOTE: None of these txParams are actually necessary, as we stub the
+      // entire eth_call call — is there another way to do this so that it's
+      // dependent on the params we pass?
+      txController
+        .fetchOptimismL1Fee({
+          txParams: {
+            nonce: '0x0',
+            gasPrice: new BN('10000000000000').toString(16),
+            gasLimit: new BN('10000').toString(16),
+            to: '0x0000000000000000000000000000000000000000',
+            value: '0x0',
+            data: '0x0',
+          },
+        })
+        .then((l1Fee) => {
+          assert(l1Fee.eq(new BN('12345')), "L1 fee is not equal to '12345'");
+          done();
+        }, done)
+        .catch(done);
     });
   });
 });

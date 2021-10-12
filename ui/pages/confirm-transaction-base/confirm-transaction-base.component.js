@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { isEqual } from 'lodash';
 import { ENVIRONMENT_TYPE_NOTIFICATION } from '../../../shared/constants/app';
 import { getEnvironmentType } from '../../../app/scripts/lib/util';
 import ConfirmPageContainer from '../../components/app/confirm-page-container';
@@ -129,6 +130,8 @@ export default class ConfirmTransactionBase extends Component {
     isFirefox: PropTypes.bool.isRequired,
     nativeCurrency: PropTypes.string,
     supportsEIP1559: PropTypes.bool,
+    fetchOptimismL1Fee: PropTypes.func.isRequired,
+    isOptimismTestnet: PropTypes.bool,
   };
 
   state = {
@@ -151,6 +154,9 @@ export default class ConfirmTransactionBase extends Component {
       tryReverseResolveAddress,
       isEthGasPrice,
       setDefaultHomeActiveTabName,
+      fetchOptimismL1Fee,
+      txData,
+      isOptimismTestnet,
     } = this.props;
     const {
       customNonceValue: prevCustomNonceValue,
@@ -202,6 +208,12 @@ export default class ConfirmTransactionBase extends Component {
           ethGasPriceWarning: '',
         });
       }
+    }
+
+    if (isOptimismTestnet && !isEqual(txData, prevProps.txData)) {
+      // here `txData` is the same thing as `txMeta` elsewhere
+      console.log('Fetching Optimism L1 fee...');
+      fetchOptimismL1Fee(txData);
     }
   }
 
@@ -844,6 +856,9 @@ export default class ConfirmTransactionBase extends Component {
       txData: { origin } = {},
       getNextNonce,
       tryReverseResolveAddress,
+      isOptimismTestnet,
+      fetchOptimismL1Fee,
+      txData,
     } = this.props;
     const { metricsEvent } = this.context;
     metricsEvent({
@@ -883,6 +898,12 @@ export default class ConfirmTransactionBase extends Component {
       }
     });
     window.addEventListener('beforeunload', this._beforeUnloadForGasPolling);
+
+    if (isOptimismTestnet) {
+      // here `txData` is the same thing as `txMeta` elsewhere
+      console.log('Fetching Optimism L1 fee...');
+      fetchOptimismL1Fee(txData);
+    }
   }
 
   componentWillUnmount() {

@@ -971,6 +971,10 @@ export default class MetamaskController extends EventEmitter {
         txController.addUnapprovedTransaction,
         txController,
       ),
+      fetchOptimismL1Fee: nodeify(
+        txController.fetchOptimismL1Fee,
+        txController,
+      ),
 
       // messageManager
       signMessage: nodeify(this.signMessage, this),

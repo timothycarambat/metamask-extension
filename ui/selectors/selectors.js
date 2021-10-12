@@ -7,6 +7,8 @@ import {
   TEST_CHAINS,
   NETWORK_TYPE_RPC,
   NATIVE_CURRENCY_TOKEN_IMAGE_MAP,
+  OPTIMISM_CHAIN_ID,
+  OPTIMISM_TESTNET_CHAIN_ID,
 } from '../../shared/constants/network';
 import { KEYRING_TYPES } from '../../shared/constants/hardware-wallets';
 
@@ -416,6 +418,16 @@ export function getIsNonStandardEthChain(state) {
   return !(getIsMainnet(state) || getIsTestnet(state) || process.env.IN_TEST);
 }
 
+export function getIsOptimismMainnet(state) {
+  const chainId = getCurrentChainId(state);
+  return chainId === OPTIMISM_CHAIN_ID;
+}
+
+export function getIsOptimismTestnet(state) {
+  const chainId = getCurrentChainId(state);
+  return chainId === OPTIMISM_TESTNET_CHAIN_ID;
+}
+
 export function getPreferences({ metamask }) {
   return metamask.preferences;
 }
@@ -434,6 +446,11 @@ export function getShouldHideZeroBalanceTokens(state) {
 
 export function getAdvancedInlineGasShown(state) {
   return Boolean(state.metamask.featureFlags.advancedInlineGas);
+}
+
+export function getNetworkSupportsSettingGasPrice(state) {
+  const chainId = getCurrentChainId(state);
+  return ![OPTIMISM_TESTNET_CHAIN_ID].includes(chainId);
 }
 
 export function getUseNonceField(state) {

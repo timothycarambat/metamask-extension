@@ -2877,3 +2877,8 @@ export async function setWeb3ShimUsageAlertDismissed(origin) {
 export async function detectNewTokens() {
   return promisifiedBackground.detectNewTokens();
 }
+
+// TransactionsController
+export function fetchOptimismL1Fee(txParams) {
+  return promisifiedBackground.fetchOptimismL1Fee(txParams);
+}

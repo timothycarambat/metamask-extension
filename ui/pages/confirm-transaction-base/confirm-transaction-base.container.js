@@ -12,6 +12,7 @@ import {
   getNextNonce,
   tryReverseResolveAddress,
   setDefaultHomeActiveTabName,
+  fetchOptimismL1Fee,
 } from '../../store/actions';
 import { isBalanceSufficient, calcGasTotal } from '../send/send.utils';
 import { shortenAddress, valuesFor } from '../../helpers/utils/util';
@@ -31,6 +32,7 @@ import {
   getHardwareWalletType,
   getUseTokenDetection,
   getTokenList,
+  getIsOptimismTestnet,
 } from '../../selectors';
 import { getMostRecentOverviewPage } from '../../ducks/history/history';
 import {
@@ -222,6 +224,7 @@ const mapStateToProps = (state, ownProps) => {
     showLedgerSteps,
     isFirefox,
     nativeCurrency,
+    isOptimismTestnet: getIsOptimismTestnet(state),
   };
 };
 
@@ -256,6 +259,7 @@ export const mapDispatchToProps = (dispatch) => {
     updateTransactionGasFees: (gasFees) => {
       dispatch(updateTransactionGasFees({ ...gasFees, expectHexWei: true }));
     },
+    fetchOptimismL1Fee,
   };
 };
 

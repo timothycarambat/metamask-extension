@@ -883,38 +883,22 @@ export default class TransactionController extends EventEmitter {
   */
   async signTransaction(txId) {
     const txMeta = this.txStateManager.getTransaction(txId);
-    // add network/chain id
-    const chainId = this.getChainId();
-    const type = isEIP1559Transaction(txMeta)
-      ? TRANSACTION_ENVELOPE_TYPES.FEE_MARKET
-      : TRANSACTION_ENVELOPE_TYPES.LEGACY;
-    const txParams = {
-      ...txMeta.txParams,
-      type,
-      chainId,
-      gasLimit: txMeta.txParams.gas,
-    };
-    // sign tx
-    const fromAddress = txParams.from;
-    const common = await this.getCommonConfiguration(txParams.from);
-    const unsignedEthTx = TransactionFactory.fromTxData(txParams, { common });
-    const signedEthTx = await this.signEthTx(unsignedEthTx, fromAddress);
+    const txParams = this._buildTransactionParams(txMeta);
+    const unsignedEthTx = await this._buildUnserializedTransaction(txParams);
 
-    // add r,s,v values for provider request purposes see createMetamaskMiddleware
-    // and JSON rpc standard for further explanation
+    const signedEthTx = await this.signEthTx(unsignedEthTx, txParams.from);
+    // Add r,s,v values for provider request purposes
+    // See createMetamaskMiddleware and JSON RPC standard for further explanation
     txMeta.r = bufferToHex(signedEthTx.r);
     txMeta.s = bufferToHex(signedEthTx.s);
     txMeta.v = bufferToHex(signedEthTx.v);
-
     this.txStateManager.updateTransaction(
       txMeta,
       'transactions#signTransaction: add r, s, v values',
     );
-
-    // set state to signed
     this.txStateManager.setTxStatusSigned(txMeta.id);
-    const rawTx = bufferToHex(signedEthTx.serialize());
-    return rawTx;
+
+    return bufferToHex(signedEthTx.serialize());
   }
 
   /**
@@ -1055,6 +1039,28 @@ export default class TransactionController extends EventEmitter {
     const txMeta = this.txStateManager.getTransaction(txId);
     txMeta.hash = txHash;
     this.txStateManager.updateTransaction(txMeta, 'transactions#setTxHash');
+  }
+
+  /*
+   * Retrieves the computed L1 fee for a future Optimism transaction so that we
+   * can present this to the user before they confirm the transaction.
+   * @param {Object} txMeta - Details about the transaction which Optimism needs
+   * to compute the fee, as a txMeta object.
+   * @returns {Promise<number>} A promise for the L1 fee in GWEI.
+   */
+  async fetchOptimismL1Fee(txMeta) {
+    const txParams = this._buildTransactionParams(txMeta);
+    const unserializedTransaction = await this._buildUnserializedTransaction(
+      txParams,
+    );
+    console.log(
+      'Fetching Optimism L1 fee...',
+      'txMeta',
+      txMeta,
+      'unserializedTransaction',
+      unserializedTransaction,
+    );
+    return this.txGasUtil.fetchOptimismL1Fee(unserializedTransaction);
   }
 
   //
@@ -1459,5 +1465,41 @@ export default class TransactionController extends EventEmitter {
     this.txStateManager.setTxStatusDropped(txId);
     const txMeta = this.txStateManager.getTransaction(txId);
     this._trackTransactionMetricsEvent(txMeta, TRANSACTION_EVENTS.FINALIZED);
+  }
+
+  /*
+   * Returns an object suitable for giving to a @ethereumjs/tx Transaction
+   * constructor or TransactionFactory, which can be eventually used for further
+   * actions (such as serializing or signing).
+   *
+   * @param {Object} txMeta - Information about the transaction as a txMeta
+   * object.
+   * @returns {Object} The transaction params, as a txParams object.
+   */
+  _buildTransactionParams(txMeta) {
+    const chainId = this.getChainId();
+    const type = isEIP1559Transaction(txMeta)
+      ? TRANSACTION_ENVELOPE_TYPES.FEE_MARKET
+      : TRANSACTION_ENVELOPE_TYPES.LEGACY;
+    return {
+      ...txMeta.txParams,
+      type,
+      chainId,
+      gasLimit: txMeta.txParams.gas,
+    };
+  }
+
+  /*
+   * Builds an @ethereumjs/tx Transaction object, which can eventually be used
+   * for further actions (such as serializing or signing).
+   *
+   * @param {Object} - An object that @ethereumjs/tx's TransactionFactory
+   * function accepts, as a txParams object.
+   * @returns {import('@ethereumjs/tx').Transaction} - The resulting Transaction
+   * object.
+   */
+  async _buildUnserializedTransaction(txParams) {
+    const common = await this.getCommonConfiguration(txParams.from);
+    return TransactionFactory.fromTxData(txParams, { common });
   }
 }

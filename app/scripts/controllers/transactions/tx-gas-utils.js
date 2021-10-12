@@ -1,7 +1,11 @@
+import util from 'util';
 import EthQuery from 'ethjs-query';
+import Eth from 'ethjs';
 import log from 'loglevel';
-import { addHexPrefix } from 'ethereumjs-util';
+import { addHexPrefix, rlp } from 'ethereumjs-util';
 import { cloneDeep } from 'lodash';
+import * as optimismContracts from '@eth-optimism/contracts';
+import * as ethers from 'ethers';
 import { hexToBn, BnMultiplyByFraction, bnToHex } from '../../lib/util';
 
 /**
@@ -23,6 +27,7 @@ and used to do things like calculate gas of a tx.
 export default class TxGasUtil {
   constructor(provider) {
     this.query = new EthQuery(provider);
+    this.eth = new Eth(provider);
   }
 
   /**
@@ -111,5 +116,62 @@ export default class TxGasUtil {
       multiplier,
     );
     return { gasLimit, simulationFails };
+  }
+
+  /*
+   * Uses a smart contract provided by Optimism (an L2 blockchain) to fetch the
+   * computed L1 fee for a transaction that has not been submitted yet. The
+   * rationale and mechanics behind this is documented here:
+   * <https://community.optimism.io/docs/developers/l2/new-fees.html>
+   * @param {import('@ethereumjs/tx').Transaction} unserializedTransaction - A
+   * transaction produced via @ethereumjs/tx. Note that this must be a type-0
+   * transaction, as Optimism does not support EIP-2930 or EIP-1559 — i.e., it
+   * must contain `nonce`, `gasPrice`, `gasLimit`, `to`, `value`, and `data`
+   * properties (see
+   * <https://github.com/ethereumjs/ethereumjs-monorepo/blob/e001ba033b751e47d2691355e51abd9eda2b9b00/packages/tx/src/legacyTransaction.ts#L176-L193>).
+   * @returns {Promise<number>} A promise for the L1 fee in GWEI.
+   */
+  async fetchOptimismL1Fee(unserializedTransaction) {
+    // TODO: Do we need to verify that the unserializedTransaction is of type 0?
+    // Or does it matter?
+    // const messageToSign = unserializedTransaction.getMessageToSign(true);
+    // const serializedTransaction = rlp.encode(messageToSign);
+    const serializedTransaction = unserializedTransaction.serialize();
+    const OVMGasPriceOracle = optimismContracts
+      .getContractFactory('OVM_GasPriceOracle')
+      .attach(optimismContracts.predeploys.OVM_GasPriceOracle);
+    const abi = JSON.parse(
+      OVMGasPriceOracle.interface.format(ethers.utils.FormatTypes.json),
+    );
+    console.log('contract address', OVMGasPriceOracle.address);
+    const ethContract = this.eth.contract(abi).at(OVMGasPriceOracle.address);
+    // const gasPrice = await ethContract.gasPrice();
+    const l1BaseFee = await ethContract.l1BaseFee();
+    // const overhead = await ethContract.overhead();
+    // const scalar = await ethContract.scalar();
+    // const decimals = await ethContract.decimals();
+    console.log(
+      'gasPrice',
+      gasPrice,
+      'l1BaseFee',
+      l1BaseFee,
+      // 'overhead',
+      // overhead,
+      // 'scalar',
+      // scalar,
+      // 'decimals',
+      // decimals,
+    );
+    return null;
+    /*
+    let result = [];
+    try {
+      result = await ethContract.getL1Fee(serializedTransaction);
+      console.log('Received response from OVM_GasPriceOracle', result);
+    } catch (error) {
+      console.error('Received error from OVM_GasPriceOracle', error);
+    }
+    return result[0];
+    */
   }
 }
