@@ -61,9 +61,7 @@ export function getPermittedAccountsForCurrentTab(state) {
 export function getPermittedAccountsByOrigin(state) {
   const subjects = getPermissionSubjects(state);
   return Object.keys(subjects).reduce((acc, subjectKey) => {
-    const accounts = getAccountsFromPermission(
-      getAccountsPermissionFromSubject(subjects[subjectKey]),
-    );
+    const accounts = getAccountsFromSubject(subjects[subjectKey]);
     if (accounts.length > 0) {
       acc[subjectKey] = accounts;
     }
