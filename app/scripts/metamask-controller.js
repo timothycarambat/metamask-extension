@@ -91,6 +91,10 @@ import {
   getPermissionSpecifications,
   unrestrictedMethods,
 } from './permissions/specifications';
+import {
+  getPermittedAccountsByOrigin,
+  getChangedAccounts,
+} from './permissions/selectors';
 
 export const METAMASK_CONTROLLER_EVENTS = {
   // Fired after state changes that impact the extension badge (unapproved msg count)
@@ -427,7 +431,10 @@ export default class MetamaskController extends EventEmitter {
       restrictedMethods: Object.keys(RestrictedMethods),
     });
 
-    this.getAccounts = async (origin) => {
+    /**
+     * @param {string} origin - The origin whose exposed accounts to retrieve.
+     */
+    this.getPermittedAccounts = async (origin) => {
       try {
         return await this.permissionController.executeRestrictedMethod(
           origin,
@@ -484,7 +491,7 @@ export default class MetamaskController extends EventEmitter {
     this.txController = new TransactionController({
       initState:
         initState.TransactionController || initState.TransactionManager,
-      getPermittedAccounts: this.getAccounts.bind(this),
+      getPermittedAccounts: this.getPermittedAccounts.bind(this),
       getProviderConfig: this.networkController.getProviderConfig.bind(
         this.networkController,
       ),
@@ -672,7 +679,7 @@ export default class MetamaskController extends EventEmitter {
     });
     this.memStore.subscribe(this.sendUpdate.bind(this));
 
-    // TODO: remove
+    // TODO:permissions remove
     if (process.env.METAMASK_DEBUG) {
       globalThis.getMemState = () => this.memStore.getState();
       globalThis.permissions = this.permissionController;
@@ -698,8 +705,82 @@ export default class MetamaskController extends EventEmitter {
       );
     });
 
+    this.setupControllerEventSubscriptions();
+
     // TODO:LegacyProvider: Delete
     this.publicConfigStore = this.createPublicConfigStore();
+  }
+
+  /**
+   * TODO:permissions add docs, use enums
+   */
+  setupControllerEventSubscriptions() {
+    const getCurrentAccounts = async (origin, newAccounts) => {
+      return newAccounts.length < 2
+        ? newAccounts
+        : await this.getPermittedAccounts(origin);
+    };
+
+    const handleAccountsChange = async (origin, newAccounts) => {
+      this.notifyConnections(origin, {
+        method: NOTIFICATION_NAMES.accountsChanged,
+        params: await getCurrentAccounts(origin, newAccounts),
+      });
+      this.permissionLogController.updateAccountsHistory(origin, newAccounts);
+    };
+
+    // This handles account changes whenever the selected address changes.
+    let lastSelectedAddress;
+    this.preferencesController.store.subscribe(async ({ selectedAddress }) => {
+      if (selectedAddress && selectedAddress !== lastSelectedAddress) {
+        lastSelectedAddress = selectedAddress;
+        const permittedAccountsMap = getPermittedAccountsByOrigin(
+          this.permissionController.state,
+        );
+
+        for (const [origin, accounts] of permittedAccountsMap.entries()) {
+          if (accounts.includes(selectedAddress)) {
+            handleAccountsChange(origin, accounts);
+          }
+        }
+      }
+    });
+
+    // This handles account changes whenever the extension is unlocked.
+    this.on('unlock', async () => {
+      const permittedAccountsMap = getPermittedAccountsByOrigin(
+        this.permissionController.state,
+      );
+
+      for (const [origin, accounts] of permittedAccountsMap.entries()) {
+        this.notifyConnections(origin, {
+          method: NOTIFICATION_NAMES.unlockStateChanged,
+          params: {
+            isUnlocked: true,
+            accounts: await getCurrentAccounts(origin, accounts),
+          },
+        });
+      }
+    });
+
+    // This handles account changes every time relevant permission state
+    // changes, for any reason.
+    this.controllerMessenger.subscribe(
+      'PermissionController:stateChange',
+      async (currentValue, previousValue) => {
+        if (this.isUnlocked()) {
+          const changedAccounts = getChangedAccounts(
+            currentValue,
+            previousValue,
+          );
+
+          for (const [origin, accounts] of changedAccounts.entries()) {
+            handleAccountsChange(origin, accounts);
+          }
+        }
+      },
+      getPermittedAccountsByOrigin,
+    );
   }
 
   /**
@@ -719,7 +800,7 @@ export default class MetamaskController extends EventEmitter {
           const selectedAddress = this.preferencesController.getSelectedAddress();
           return selectedAddress ? [selectedAddress] : [];
         } else if (this.isUnlocked()) {
-          return await this.getAccounts(origin);
+          return await this.getPermittedAccounts(origin);
         }
         return []; // changing this is a breaking change
       },
@@ -795,7 +876,7 @@ export default class MetamaskController extends EventEmitter {
     return {
       isUnlocked: this.isUnlocked(),
       ...this.getProviderNetworkState(),
-      accounts: await this.getAccounts(origin),
+      accounts: await this.getPermittedAccounts(origin),
     };
   }
 
@@ -1098,7 +1179,7 @@ export default class MetamaskController extends EventEmitter {
       clearPermissions: permissionController.clearState.bind(
         permissionController,
       ),
-      getApprovedAccounts: nodeify(this.getAccounts, this),
+      getApprovedAccounts: nodeify(this.getPermittedAccounts, this),
       removePermissionsFor: permissionController.revokePermissions.bind(
         permissionController,
       ),
@@ -1139,6 +1220,7 @@ export default class MetamaskController extends EventEmitter {
         permissionController.updateCaveat(
           origin,
           RestrictedMethods.eth_accounts,
+          CaveatTypes.restrictReturnedAccounts,
           [...existing.value, account],
         );
       },
@@ -1172,6 +1254,7 @@ export default class MetamaskController extends EventEmitter {
           permissionController.updateCaveat(
             origin,
             RestrictedMethods.eth_accounts,
+            CaveatTypes.restrictReturnedAccounts,
             remainingAccounts,
           );
         }
@@ -2598,7 +2681,7 @@ export default class MetamaskController extends EventEmitter {
         ),
 
         // Permission-related
-        getAccounts: this.getAccounts.bind(this, origin),
+        getAccounts: this.getPermittedAccounts.bind(this, origin),
         getPermissions: this.permissionController.getPermissions.bind(
           this.permissionController,
           origin,
@@ -2755,7 +2838,7 @@ export default class MetamaskController extends EventEmitter {
    * Ignores unknown origins.
    *
    * @param {string} origin - The connection's origin string.
-   * @param {any} payload - The event payload.
+   * @param {unknown} payload - The event payload.
    */
   notifyConnections(origin, payload) {
     const connections = this.connections[origin];
@@ -2780,7 +2863,7 @@ export default class MetamaskController extends EventEmitter {
    * The caller is responsible for ensuring that only permitted notifications
    * are sent.
    *
-   * @param {any} payload - The event payload, or payload getter function.
+   * @param {unknown} payload - The event payload, or payload getter function.
    */
   notifyAllConnections(payload) {
     const getPayload =
@@ -2788,8 +2871,8 @@ export default class MetamaskController extends EventEmitter {
         ? (origin) => payload(origin)
         : () => payload;
 
-    Object.values(this.connections).forEach((origin) => {
-      Object.values(origin).forEach(async (conn) => {
+    Object.keys(this.connections).forEach((origin) => {
+      Object.values(this.connections[origin]).forEach(async (conn) => {
         if (conn.engine) {
           conn.engine.emit('notification', await getPayload(origin));
         }
@@ -2819,23 +2902,6 @@ export default class MetamaskController extends EventEmitter {
     // Ensure preferences + identities controller know about all addresses
     this.preferencesController.syncAddresses(addresses);
     this.accountTracker.syncWithAddresses(addresses);
-  }
-
-  /**
-   * Handle global unlock, triggered by KeyringController unlock.
-   * Notifies all connections that the extension is unlocked.
-   */
-  _onUnlock() {
-    this.notifyAllConnections(async (origin) => {
-      return {
-        method: NOTIFICATION_NAMES.unlockStateChanged,
-        params: {
-          isUnlocked: true,
-          accounts: await this.getAccounts(origin),
-        },
-      };
-    });
-    this.emit('unlock');
   }
 
   /**

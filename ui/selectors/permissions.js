@@ -1,4 +1,3 @@
-import { forOwn } from 'lodash';
 import { CaveatTypes } from '../../shared/constants/permissions';
 import {
   getMetaMaskAccountsOrdered,
@@ -89,7 +88,7 @@ export function getConnectedSubjectsForSelectedAddress(state) {
 
   const connectedSubjects = [];
 
-  forOwn(subjects, (subjectValue, subjectKey) => {
+  Object.entries(subjects).forEach(([subjectKey, subjectValue]) => {
     const exposedAccounts = getAccountsFromSubject(subjectValue);
     if (!exposedAccounts.includes(selectedAddress)) {
       return;
@@ -266,6 +265,8 @@ export function getLastConnectedInfo(state) {
 
 export function getPermissionsMetadataHostCounts(state) {
   const metadata = getPermissionSubjectsMetadata(state);
+  // TODO:permissions: The "host" will probably be undefined for snaps.
+  // We should reformat the origin value in the appropriate component.
   return Object.values(metadata).reduce((counts, { host }) => {
     if (host) {
       if (counts[host]) {
