@@ -1001,10 +1001,10 @@ const state = {
     },
     permissionsRequests: [],
     permissionsDescriptions: {},
-    domains: {
+    subjects: {
       'https://app.uniswap.org': {
-        permissions: [
-          {
+        permissions: {
+          'eth_accounts': {
             '@context': ['https://github.com/MetaMask/rpc-cap'],
             invoker: 'https://app.uniswap.org',
             parentCapability: 'eth_accounts',
@@ -1012,18 +1012,12 @@ const state = {
             date: 1620710693178,
             caveats: [
               {
-                type: 'limitResponseLength',
-                value: 1,
-                name: 'primaryAccountOnly',
-              },
-              {
-                type: 'filterResponse',
+                type: 'restrictReturnedAccounts',
                 value: ['0x64a845a5b02460acf8a3d84503b0d68d028b4bb4'],
-                name: 'exposedAccounts',
               },
             ],
           },
-        ],
+        },
       },
     },
     permissionsLog: [

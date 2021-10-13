@@ -128,9 +128,7 @@
       "metaMetricsId": null
     },
     "PermissionsController": {
-      "permissionsRequests": [],
-      "permissionsDescriptions": {},
-      "domains": {}
+      "subjects": {}
     },
     "TransactionController": {
       "transactions": {
