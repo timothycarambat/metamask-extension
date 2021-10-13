@@ -2731,7 +2731,7 @@
     semver "^7.3.5"
     yargs "^17.0.1"
 
-"@metamask/contract-metadata@^1.19.0", "@metamask/contract-metadata@^1.28.0", "@metamask/contract-metadata@^1.29.0":
+"@metamask/contract-metadata@^1.28.0", "@metamask/contract-metadata@^1.29.0":
   version "1.30.0"
   resolved "https://registry.yarnpkg.com/@metamask/contract-metadata/-/contract-metadata-1.30.0.tgz#fa8e1b0c3e7aaa963986088f691fb553ffbe3904"
   integrity sha512-b2usYW/ptQYnE6zhUmr4T+nvOAQJK5ABcpKudyQANpy4K099elpv4aN0WcrcOcwV99NHOdMzFP3ZuG0HoAyOBQ==
@@ -2772,34 +2772,6 @@
     uuid "^8.3.2"
     web3 "^0.20.7"
     web3-provider-engine "^16.0.3"
-
-"@metamask/controllers@^5.0.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@metamask/controllers/-/controllers-5.1.0.tgz#02c1957295bcb6db1655a716d165665d170e7f34"
-  integrity sha512-4piqkIrpphe+9nEy68WH+yBw9wsXZyCMVeBZeRtliVHAJFXUdz+KZDUi/R1Y+568JBzqAvsOtOzbUIU4btD3Fw==
-  dependencies:
-    "@metamask/contract-metadata" "^1.19.0"
-    await-semaphore "^0.1.3"
-    eth-ens-namehash "^2.0.8"
-    eth-json-rpc-infura "^5.1.0"
-    eth-keyring-controller "^6.1.0"
-    eth-method-registry "1.1.0"
-    eth-phishing-detect "^1.1.13"
-    eth-query "^2.1.2"
-    eth-rpc-errors "^4.0.0"
-    eth-sig-util "^3.0.0"
-    ethereumjs-util "^6.1.0"
-    ethereumjs-wallet "^0.6.4"
-    ethjs-query "^0.3.8"
-    human-standard-collectible-abi "^1.0.2"
-    human-standard-token-abi "^2.0.0"
-    isomorphic-fetch "^3.0.0"
-    jsonschema "^1.2.4"
-    nanoid "^3.1.12"
-    single-call-balance-checker-abi "^1.0.0"
-    uuid "^3.3.2"
-    web3 "^0.20.7"
-    web3-provider-engine "^16.0.1"
 
 "@metamask/eslint-config-jest@^6.0.0":
   version "6.0.0"
@@ -11265,7 +11237,7 @@ eth-json-rpc-middleware@^6.0.0:
     pify "^3.0.0"
     safe-event-emitter "^1.0.1"
 
-eth-keyring-controller@^6.1.0, eth-keyring-controller@^6.2.0, eth-keyring-controller@^6.2.1:
+eth-keyring-controller@^6.2.0, eth-keyring-controller@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/eth-keyring-controller/-/eth-keyring-controller-6.2.1.tgz#61901071fc74059ed37cb5ae93870fdcae6e3781"
   integrity sha512-x2gTM1iHp2Kbvdtd9Eslysw0qzVZiqOzpVB3AU/ni2Xiit+rlcv2H80zYKjrEwlfWFDj4YILD3bOqlnEMmRJOA==
@@ -11316,7 +11288,7 @@ eth-method-registry@^2.0.0:
   dependencies:
     ethjs "^0.4.0"
 
-eth-phishing-detect@^1.1.13, eth-phishing-detect@^1.1.14:
+eth-phishing-detect@^1.1.14:
   version "1.1.15"
   resolved "https://registry.yarnpkg.com/eth-phishing-detect/-/eth-phishing-detect-1.1.15.tgz#c42e1aad6cd1c5eeee41c6bf932dcfd0e523d499"
   integrity sha512-RVNSGMVIuO6VZ1Uv4v8dljjj0ephW+APVAU5QL5mBu3VEqfBluPMNb6jw66kxYrIFrSNalnb/pMeDpAA+W3cvg==
@@ -11561,7 +11533,7 @@ ethereumjs-tx@^1.1.1, ethereumjs-tx@^1.2.0, ethereumjs-tx@^1.2.2, ethereumjs-tx@
     ethereum-common "^0.0.18"
     ethereumjs-util "^5.0.0"
 
-ethereumjs-util@6.2.1, ethereumjs-util@^6.0.0, ethereumjs-util@^6.1.0, ethereumjs-util@^6.2.0:
+ethereumjs-util@6.2.1, ethereumjs-util@^6.0.0, ethereumjs-util@^6.2.0:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.2.1.tgz#fcb4e4dd5ceacb9d2305426ab1a5cd93e3163b69"
   integrity sha512-W2Ktez4L01Vexijrm5EB6w7dg4n/TgpoYU4avuT5T3Vmnw/eCRtiBrJfQYS/DCSvDIOLn2k57GcHdeBcgVxAqw==
@@ -24347,17 +24319,6 @@ roarr@^2.15.3:
     semver-compare "^1.0.0"
     sprintf-js "^1.1.2"
 
-rpc-cap@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/rpc-cap/-/rpc-cap-3.2.1.tgz#95aba886c60562626261667d3637f9b4fe05b078"
-  integrity sha512-aNevLIJ/jIGR3by0b3pd7MWBUSJOkbOkjOCZ13Kk2ddToGZV1TaxclBsasLIdomFbxl0lyUQ8EeoMwYrS7yuBA==
-  dependencies:
-    "@metamask/controllers" "^5.0.0"
-    eth-rpc-errors "^3.0.0"
-    is-subset "^0.1.1"
-    json-rpc-engine "^5.3.0"
-    uuid "^3.3.2"
-
 rsa-pem-to-jwk@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/rsa-pem-to-jwk/-/rsa-pem-to-jwk-1.1.3.tgz#245e76bdb7e7234cfee7ca032d31b54c38fab98e"
@@ -28143,7 +28104,7 @@ web3-provider-engine@14.2.1:
     xhr "^2.2.0"
     xtend "^4.0.1"
 
-web3-provider-engine@^16.0.1, web3-provider-engine@^16.0.3:
+web3-provider-engine@^16.0.3:
   version "16.0.3"
   resolved "https://registry.yarnpkg.com/web3-provider-engine/-/web3-provider-engine-16.0.3.tgz#8ff93edf3a8da2f70d7f85c5116028c06a0d9f07"
   integrity sha512-Q3bKhGqLfMTdLvkd4TtkGYJHcoVQ82D1l8jTIwwuJp/sAp7VHnRYb9YJ14SW/69VMWoOhSpPLZV2tWb9V0WJoA==

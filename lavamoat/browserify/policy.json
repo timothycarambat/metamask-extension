@@ -4069,15 +4069,6 @@
         "console": true
       }
     },
-    "rpc-cap": {
-      "packages": {
-        "@metamask/controllers": true,
-        "eth-rpc-errors": true,
-        "is-subset": true,
-        "json-rpc-engine": true,
-        "uuid": true
-      }
-    },
     "safe-buffer": {
       "packages": {
         "buffer": true
