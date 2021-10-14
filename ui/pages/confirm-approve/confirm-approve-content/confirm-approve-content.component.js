@@ -11,9 +11,13 @@ import {
   FONT_WEIGHT,
   BLOCK_SIZES,
   JUSTIFY_CONTENT,
+  COLORS,
+  DISPLAY,
 } from '../../../helpers/constants/design-system';
 import Box from '../../../components/ui/box';
 import Button from '../../../components/ui/button';
+import MetaFoxLogo from '../../../components/ui/metafox-logo';
+import { isBeta } from '../../../helpers/utils/build-types';
 
 export default class ConfirmApproveContent extends Component {
   static contextTypes = {
@@ -252,19 +256,35 @@ export default class ConfirmApproveContent extends Component {
             <ConfirmPageContainerWarning warning={warning} />
           </div>
         )}
-        <div className="confirm-approve-content__identicon-wrapper">
-          <UrlIcon
-            className="confirm-approve-content__identicon"
-            fallbackClassName="confirm-approve-content__identicon"
-            name={getURLHostName(origin)}
-            url={siteImage}
-          />
-        </div>
+        <Box className="confirm-approve-content__icon-display-content">
+          <Box display={DISPLAY.FLEX}>
+            <MetaFoxLogo useDark={isBeta()} />
+            <Box
+              display={DISPLAY.FLEX}
+              className="confirm-approve-content__identicon-wrapper"
+            >
+              <UrlIcon
+                className="confirm-approve-content__identicon"
+                fallbackClassName="confirm-approve-content__identicon"
+                name={getURLHostName(origin)}
+                url={siteImage}
+              />
+              <Typography
+                variant={TYPOGRAPHY.H6}
+                fontWeight={FONT_WEIGHT.NORMAL}
+                color={COLORS.UI4}
+                boxProps={{ marginLeft: 2 }}
+              >
+                {getURLHostName(origin)}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
         <div className="confirm-approve-content__title">
           {t('allowOriginSpendToken', [tokenSymbol])}
         </div>
         <div className="confirm-approve-content__description">
-          {t('trustSiteApprovePermission',['contract'])}
+          {t('trustSiteApprovePermission', ['contract'])}
         </div>
         <div className="confirm-approve-content__edit-submission-button-container">
           <div
