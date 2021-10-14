@@ -261,10 +261,10 @@ export default class ConfirmApproveContent extends Component {
           />
         </div>
         <div className="confirm-approve-content__title">
-          {t('allowOriginSpendToken', [origin, tokenSymbol])}
+          {t('allowOriginSpendToken', [tokenSymbol])}
         </div>
         <div className="confirm-approve-content__description">
-          {t('trustSiteApprovePermission', [origin, tokenSymbol])}
+          {t('trustSiteApprovePermission',['contract'])}
         </div>
         <div className="confirm-approve-content__edit-submission-button-container">
           <div
