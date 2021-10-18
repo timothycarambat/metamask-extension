@@ -11,7 +11,7 @@ import EditGasPopover from '.';
 const store = configureStore(testData);
 
 export default {
-  title: 'Edit Gas Display Popover',
+  title: 'Gas Components/Edit Gas Display Popover',
   decorators: [(story) => <Provider store={store}>{story()}</Provider>],
   id: __filename,
 };

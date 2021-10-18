@@ -4,7 +4,7 @@ import { boolean, select, text } from '@storybook/addon-knobs';
 import Dropdown from '.';
 
 export default {
-  title: 'Dropdown',
+  title: 'Dropdown/General Dropdown',
   id: __filename,
 };
 

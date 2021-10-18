@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import MetaMetricsOptIn from './metametrics-opt-in.component';
 
 export default {
-  title: 'First Time Flow',
+  title: 'Page/First Time Flow',
   id: __filename,
 };
 

@@ -4,7 +4,7 @@ import { boolean, text } from '@storybook/addon-knobs';
 import SendContent from './send-content.component';
 
 export default {
-  title: 'SendContent',
+  title: 'Page/Send Content',
   id: __filename,
 };
 

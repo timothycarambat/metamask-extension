@@ -7,7 +7,7 @@ import { updateTransactionParams } from '../../store/actions';
 import ConfirmDeployContract from '.';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Deploy Contract',
   id: __filename,
 };
 

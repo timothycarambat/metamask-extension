@@ -6,7 +6,7 @@ import { updateTransactionParams } from '../../store/actions';
 import ConfirmSendEther from '.';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Send Ether',
   id: __filename,
 };
 

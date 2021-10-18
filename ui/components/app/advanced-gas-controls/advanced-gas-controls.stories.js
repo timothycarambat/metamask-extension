@@ -3,7 +3,7 @@ import React from 'react';
 import AdvancedGasControls from '.';
 
 export default {
-  title: 'Advanced Gas Controls',
+  title: 'Gas Components/Advanced Gas Controls',
   id: __filename,
 };
 

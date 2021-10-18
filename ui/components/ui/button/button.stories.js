@@ -4,7 +4,7 @@ import { text, boolean } from '@storybook/addon-knobs';
 import Button from '.';
 
 export default {
-  title: 'Button',
+  title: 'Button/General Button',
   id: __filename,
 };
 

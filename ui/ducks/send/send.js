@@ -1074,7 +1074,6 @@ const slice = createSlice({
         balance: state.account.balance,
         gasTotal: state.gas.gasTotal ?? '0x0',
       });
-
       state.gas.error = insufficientFunds ? INSUFFICIENT_FUNDS_ERROR : null;
     },
     validateSendState: (state) => {

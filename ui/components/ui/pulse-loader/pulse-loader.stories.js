@@ -2,7 +2,7 @@ import React from 'react';
 import PulseLoader from '.';
 
 export default {
-  title: 'PulseLoader',
+  title: 'Loader/Pulse Loader',
   id: __filename,
 };
 

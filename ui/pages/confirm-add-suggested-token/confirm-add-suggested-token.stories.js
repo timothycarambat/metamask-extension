@@ -7,7 +7,7 @@ import { updateMetamaskState } from '../../store/actions';
 import ConfirmAddSuggestedToken from '.';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Add Suggested Token',
   id: __filename,
 };
 

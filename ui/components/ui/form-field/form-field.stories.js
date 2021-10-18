@@ -5,7 +5,7 @@ import { select } from '@storybook/addon-knobs';
 import FormField from '.';
 
 export default {
-  title: 'FormField',
+  title: 'Text Input/Form Field',
   id: __filename,
 };
 

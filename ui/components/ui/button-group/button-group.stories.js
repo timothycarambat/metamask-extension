@@ -6,7 +6,7 @@ import Button from '../button';
 import ButtonGroup from '.';
 
 export default {
-  title: 'ButtonGroup',
+  title: 'Button/Button Group',
   id: __filename,
 };
 

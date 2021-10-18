@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import ImportToken from './import-token';
 
 export default {
-  title: 'Import Token',
+  title: 'Modal/Import Token',
   id: __filename,
 };
 

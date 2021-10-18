@@ -11,7 +11,7 @@ import { domainMetadata } from '../../../.storybook/initial-states/approval-scre
 import ConfirmApprove from '.';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Approve Tokens',
   id: __filename,
 };
 

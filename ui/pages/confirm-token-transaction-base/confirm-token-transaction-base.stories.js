@@ -3,7 +3,7 @@ import { store } from '../../../.storybook/preview';
 import ConfirmTokenTransactionBase from './confirm-token-transaction-base.component';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Token Transaction',
   id: __filename,
 };
 

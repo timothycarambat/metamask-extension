@@ -9,7 +9,7 @@ const containerStyle = {
 };
 
 export default {
-  title: 'Signature Request',
+  title: 'Modal/Signature Request',
   id: __filename,
 };
 

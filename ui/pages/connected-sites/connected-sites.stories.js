@@ -3,7 +3,7 @@ import React from 'react';
 import ConnectedSites from '.';
 
 export default {
-  title: 'Connected Sites',
+  title: 'Modal/Connected Sites',
   id: __filename,
 };
 

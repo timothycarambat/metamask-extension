@@ -3,7 +3,7 @@ import React from 'react';
 import TransactionList from '.';
 
 export default {
-  title: 'Transaction List',
+  title: 'Card/Transaction List',
   id: __filename,
 };
 

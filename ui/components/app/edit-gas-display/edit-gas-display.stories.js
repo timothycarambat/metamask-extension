@@ -2,7 +2,7 @@ import React from 'react';
 import EditGasDisplay from '.';
 
 export default {
-  title: 'Edit Gas Display',
+  title: 'Gas Components/Edit Gas Display',
   id: __filename,
 };
 

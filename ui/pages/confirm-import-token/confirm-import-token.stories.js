@@ -9,7 +9,7 @@ import { updateMetamaskState } from '../../store/actions';
 import ConfirmAddToken from '.';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Add Token',
   id: __filename,
 };
 

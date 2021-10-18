@@ -2,7 +2,7 @@ import React from 'react';
 import CircleIcon from './circle-icon.component';
 
 export default {
-  title: 'CircleIcon',
+  title: 'Icon/Circle Icon',
   id: __filename,
 };
 

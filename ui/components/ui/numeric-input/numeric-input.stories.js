@@ -2,7 +2,7 @@ import React from 'react';
 import NumericInput from '.';
 
 export default {
-  title: 'NumericInput',
+  title: 'Text Input/Numeric Input',
   id: __filename,
 };
 

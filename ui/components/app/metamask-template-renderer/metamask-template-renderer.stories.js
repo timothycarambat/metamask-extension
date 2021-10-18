@@ -4,7 +4,7 @@ import { COLORS, TYPOGRAPHY } from '../../../helpers/constants/design-system';
 import MetaMaskTemplateRenderer from '.';
 
 export default {
-  title: 'MetaMask Template Renderer',
+  title: 'General/MetaMask Template Renderer',
   id: __filename,
 };
 

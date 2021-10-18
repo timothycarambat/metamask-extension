@@ -9,7 +9,7 @@ import {
 import Typography from '.';
 
 export default {
-  title: 'Typography',
+  title: 'General/Typography',
   id: __filename,
 };
 

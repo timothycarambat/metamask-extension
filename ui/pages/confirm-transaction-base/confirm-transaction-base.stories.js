@@ -3,7 +3,7 @@ import React from 'react';
 import ConfirmTransactionBase from '.';
 
 export default {
-  title: 'Confirmation Screens',
+  title: 'Confirmation Screens/Confirm Transaction Base',
   id: __filename,
 };
 

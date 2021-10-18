@@ -4,7 +4,7 @@ import { number, boolean } from '@storybook/addon-knobs';
 import GasFeeDisplay from './gas-fee-display.component';
 
 export default {
-  title: 'GasFeeDisplay',
+  title: 'Gas Components/Gas Fee Display',
   id: __filename,
 };
 

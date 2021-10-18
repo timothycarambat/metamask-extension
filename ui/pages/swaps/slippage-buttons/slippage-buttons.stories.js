@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import SlippageButtons from '.';
 
 export default {
-  title: 'SlippageButtons',
+  title: 'Button/Slippage Buttons',
   id: __filename,
 };
 

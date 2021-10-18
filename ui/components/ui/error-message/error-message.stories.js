@@ -3,7 +3,7 @@ import { text } from '@storybook/addon-knobs';
 import ErrorMessage from '.';
 
 export default {
-  title: 'ErrorMessage',
+  title: 'Toast/Error Message',
   id: __filename,
 };
 

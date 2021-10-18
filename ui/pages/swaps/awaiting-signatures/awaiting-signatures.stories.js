@@ -2,7 +2,7 @@ import React from 'react';
 import AwaitingSignatures from './awaiting-signatures';
 
 export default {
-  title: 'Signatures',
+  title: 'Modal/Signatures',
   id: __filename,
 };
 

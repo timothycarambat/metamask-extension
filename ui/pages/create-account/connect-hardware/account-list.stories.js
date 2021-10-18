@@ -9,7 +9,7 @@ import AccountList from './account-list';
 const store = configureStore(testData);
 
 export default {
-  title: 'Account List',
+  title: 'List/Account List',
   id: __filename,
   decorators: [(story) => <Provider store={store}>{story()}</Provider>],
 };

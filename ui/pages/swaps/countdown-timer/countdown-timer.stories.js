@@ -3,7 +3,7 @@ import { number } from '@storybook/addon-knobs';
 import CountdownTimer from './countdown-timer';
 
 export default {
-  title: 'CountdownTimer',
+  title: 'Label/Countdown Timer',
   id: __filename,
 };
 

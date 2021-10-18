@@ -15,7 +15,7 @@ const mainWrapperStyle = {
 };
 
 export default {
-  title: 'Popover',
+  title: 'Modal/Popover',
   id: __filename,
 };
 

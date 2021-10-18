@@ -11,7 +11,7 @@ import testData from '../../../../../.storybook/test-data';
 import SendAmountRow from './send-amount-row.component';
 
 export default {
-  title: 'SendAmountRow',
+  title: 'Card/Send Amount',
 };
 
 const ProviderWrapper = ({ children, store }) => {

@@ -8,7 +8,7 @@ import {
 import DefinitionList from './definition-list';
 
 export default {
-  title: 'Definition List',
+  title: 'General/Definition List',
   id: __filename,
 };
 

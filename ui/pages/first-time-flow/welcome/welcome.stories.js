@@ -2,7 +2,7 @@ import React from 'react';
 import Welcome from './welcome.component';
 
 export default {
-  title: 'First Time Flow',
+  title: 'Page/First Time Flow',
   id: __filename,
 };
 
