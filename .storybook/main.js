@@ -5,10 +5,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   stories: ['../ui/**/*.stories.js'],
   addons: [
-    '@storybook/addon-links',
     '@storybook/addon-essentials',
-    '@storybook/addon-knobs',
     '@storybook/addon-actions',
+    '@storybook/addon-a11y',
+    '@storybook/addon-knobs',
     '@storybook/addon-backgrounds',
     '@storybook/addon-toolbars',
     './i18n-party-addon/register.js',

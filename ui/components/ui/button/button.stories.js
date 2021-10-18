@@ -8,6 +8,7 @@ import Button from '.';
 
 export default {
   title: 'Button',
+  id: __filename,
   component: Button,
   parameters: {
     docs: {
