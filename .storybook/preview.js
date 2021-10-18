@@ -8,11 +8,11 @@ import '../ui/css/index.scss';
 import localeList from '../app/_locales/index.json';
 import * as allLocales from './locales';
 import { I18nProvider, LegacyI18nProvider } from './i18n';
-import MetaMetricsProviderStorybook from './metametrics'
+import MetaMetricsProviderStorybook from './metametrics';
 import testData from './test-data.js';
-import { Router } from "react-router-dom";
-import { createBrowserHistory } from "history";
-import { _setBackgroundConnection } from '../ui/store/actions'
+import { Router } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
+import { _setBackgroundConnection } from '../ui/store/actions';
 
 addParameters({
   backgrounds: {
@@ -47,19 +47,22 @@ const styles = {
 
 export const getNewState = (state, props) => {
   return Object.assign(state, props);
-}
+};
 
 export const store = configureStore(testData);
 const history = createBrowserHistory();
-const proxiedBackground = new Proxy({}, {
+const proxiedBackground = new Proxy(
+  {},
+  {
     get(_, method) {
-      return function() {
-        action(`Background call: ${method}`)()
-        return new Promise(() => {})
-      }
-    }
-  })
-_setBackgroundConnection(proxiedBackground)
+      return function () {
+        action(`Background call: ${method}`)();
+        return new Promise(() => {});
+      };
+    },
+  },
+);
+_setBackgroundConnection(proxiedBackground);
 
 const metamaskDecorator = (story, context) => {
   const currentLocale = context.globals.locale;
