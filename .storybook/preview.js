@@ -38,13 +38,6 @@ export const globalTypes = {
   },
 };
 
-const styles = {
-  height: '100vh',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-};
-
 export const getNewState = (state, props) => {
   return Object.assign(state, props);
 };
@@ -76,9 +69,7 @@ const metamaskDecorator = (story, context) => {
             current={current}
             en={allLocales.en}
           >
-            <LegacyI18nProvider>
-              <div style={styles}>{story()}</div>
-            </LegacyI18nProvider>
+            <LegacyI18nProvider>{story()}</LegacyI18nProvider>
           </I18nProvider>
         </MetaMetricsProviderStorybook>
       </Router>
