@@ -130,8 +130,8 @@ export default class ConfirmTransactionBase extends Component {
     nativeCurrency: PropTypes.string,
     supportsEIP1559: PropTypes.bool,
     isFailedTransaction: PropTypes.bool,
-    removeTxFromFailedTxesToDisplay: PropTypes.bool,
-    addTxToDisplay: PropTypes.bool,
+    removeTxFromFailedTxesToDisplay: PropTypes.func,
+    addTxToDisplay: PropTypes.func,
     showTransactionErrorDialog: PropTypes.func,
   };
 
