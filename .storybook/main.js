@@ -1,4 +1,6 @@
 const path = require('path');
+const babelConfig = require('../babel.config');
+const babelOptions = babelConfig();
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
@@ -15,7 +17,7 @@ module.exports = {
   ],
   babel: async (options) => ({
     ...options,
-    plugins: ['@babel/plugin-proposal-class-properties'],
+    ...babelOptions,
   }),
   webpackFinal: async (config) => {
     config.context = process.cwd();
