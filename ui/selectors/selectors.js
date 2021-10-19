@@ -414,7 +414,7 @@ export function getPreferences({ metamask }) {
   return metamask.preferences;
 }
 
-export function getShouldShowTestNetworks(state) {
+export function getShowTestNetworks(state) {
   const { showTestNetworks } = getPreferences(state);
   return Boolean(showTestNetworks);
 }
