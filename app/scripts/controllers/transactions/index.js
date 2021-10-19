@@ -648,6 +648,14 @@ export default class TransactionController extends EventEmitter {
       newGasParams.gas = customGasSettings?.gas ?? GAS_LIMITS.SIMPLE;
     }
 
+    if (customGasSettings.estimate_suggested) {
+      newGasParams.estimate_suggested = customGasSettings.estimate_suggested;
+    }
+
+    if (customGasSettings.estimate_used) {
+      newGasParams.estimate_used = customGasSettings.estimate_used;
+    }
+
     if (isEIP1559Transaction(originalTxMeta)) {
       previousGasParams.maxFeePerGas = txParams.maxFeePerGas;
       previousGasParams.maxPriorityFeePerGas = txParams.maxPriorityFeePerGas;
