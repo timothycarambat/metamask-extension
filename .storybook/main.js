@@ -11,8 +11,6 @@ module.exports = {
     '@storybook/addon-actions',
     '@storybook/addon-a11y',
     '@storybook/addon-knobs',
-    '@storybook/addon-backgrounds',
-    '@storybook/addon-toolbars',
     './i18n-party-addon/register.js',
   ],
   babel: async (options) => ({
