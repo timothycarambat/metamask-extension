@@ -24,6 +24,8 @@ import {
   getUseNonceField,
   getCustomNonceValue,
   getNextSuggestedNonce,
+  getCurrentChainId,
+  getRpcPrefsForCurrentProvider,
 } from '../../selectors';
 
 import { useApproveTransaction } from '../../hooks/useApproveTransaction';
@@ -51,6 +53,8 @@ export default function ConfirmApprove() {
   const useNonceField = useSelector(getUseNonceField);
   const nextNonce = useSelector(getNextSuggestedNonce);
   const customNonceValue = useSelector(getCustomNonceValue);
+  const chainId = useSelector(getCurrentChainId);
+  const rpcPrefs = useSelector(getRpcPrefsForCurrentProvider);
 
   const transaction =
     currentNetworkTxList.find(
@@ -72,6 +76,7 @@ export default function ConfirmApprove() {
 
   const tokenSymbol = currentToken?.symbol;
   const decimals = Number(currentToken?.decimals);
+  const tokenImage = Number(currentToken?.image);
   const tokenData = getTokenData(data);
   const tokenValue = getTokenValueParam(tokenData);
   const toAddress = getTokenAddressParam(tokenData);
@@ -147,6 +152,7 @@ export default function ConfirmApprove() {
             tokenAmount={tokenAmount}
             origin={formattedOrigin}
             tokenSymbol={tokenSymbol}
+            tokenImage={tokenImage}
             tokenBalance={tokenBalance}
             showCustomizeGasModal={approveTransaction}
             showEditApprovalPermissionModal={({
@@ -207,6 +213,8 @@ export default function ConfirmApprove() {
               )
             }
             warning={submitWarning}
+            chainId={chainId}
+            rpcPrefs={rpcPrefs}
           />
           {showCustomizeGasPopover && (
             <EditGasPopover
